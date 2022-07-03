@@ -67,8 +67,8 @@ systemctl enable labadmin-script_server_agent.service
 systemctl start labadmin-script_server_agent.service
 
 # CONFIG FILES
-echo
+echo; echo
 echo -e "\e[1mMANUAL STEPS TO COMPLETE INSTALLATION:\e[0m"
-echo "  * Edit ${install_dest}/config file and set variables to config ssh connection"
-echo "  * Copy ssh private key to ${install_dest} and config path in config file"
-echo "  * Set permissions 600 to private key"
+echo -e "  * Edit \e[1m${install_dest}/config\e[0m file and set variables to config ssh connection"
+echo -e "  * Copy \e[1mssh private\e[0m key to ${install_dest} and config path in config file"
+echo -e "  * Set \e[1mpermissions 600\e[0m to private key"
