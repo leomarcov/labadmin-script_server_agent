@@ -52,7 +52,7 @@ After=network.target
  
 [Service]
 Type=simple
-ExecStart='"$install_dest/labadmin-script_server_agent"'
+ExecStart=bash '"$install_dest/labadmin-script_server_agent"'
 Restart=on-failure
 StandardOutput=journal
 StandardError=jorunal
@@ -65,6 +65,8 @@ systemctl enable labadmin-script_server_agent.service
 systemctl start labadmin-script_server_agent.service
 
 # CONFIG FILES
-echo -e "\e[1mEdit config files\e[0m"
-echo "Please, to complete installation edit $install_dest/config file"
-echo "and edit variables to config parameters"
+echo
+echo -e "\e[1mMANUAL STEPS TO COMPLETE INSTALLATION:\e[0m"
+echo "  * Edit $install_dest/config file and set variables to config ssh connection"
+echo "  * Copy ssh private key to $install_dir and config path in config file"
+echo "  * Set permissions 600 to private key"
