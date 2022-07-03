@@ -33,10 +33,7 @@ function check_root() {
 #===============================================================================
 
 # CHECK PRIVILEGES
-if ! check_root; then
-	echo "Must be as administrator"
-	return 1
-fi
+icheck_root
 
 # COPY FILES
 if [ $(realpath "$install_src") != $(realpath "$install_dest") ]; then
