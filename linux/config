@@ -1,0 +1,22 @@
+#!/bin/bash
+#===================================================================================
+# LABADMIN SCRIPT SERVER AGENT CONFIG
+#         FILE: config
+#
+#  DESCRIPTION: Labadmin script server client agent config variables
+#
+#       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
+#      LICENSE: GNU General Public License v3.0
+#      VERSION: 2022.06
+#      CREATED: 28.06.2022
+#=================================================================================== 
+
+#===============================================================================
+#  GLOBAL CONFIG VARIABLES
+#===============================================================================
+readonly log_path="/var/log/labadmin-script_server_agent"						# File path where save logs
+readonly sshaddress="10.119.171.216"											# SSH IP address
+readonly sshport="58889"														# SSH port
+readonly sshuser="labadmin"														# SSH username
+readonly sshcmd="/opt/labadmin-script_server/srv/labadmin-script_server"		# Labadmin script server command path in remote server
+readonly sshprivatekey_path="${agent_path}/id_rsa"								# Local ssh private key path for ssh authentication
