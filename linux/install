@@ -1,8 +1,8 @@
 #!/bin/bash
 #===================================================================================
 # LABADMIN SCRIPT SERVER AGENT INSTALL
-#         FILE: labadmin-script_server_agent
-#  DESCRIPTION: Labadmin script server client agent
+#         FILE: install
+#  DESCRIPTION: Labadmin script server client agent install script
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
 #      LICENSE: GNU General Public License v3.0
@@ -14,8 +14,7 @@
 #  GLOBAL VARIABLES
 #===============================================================================
 readonly install_src="$(dirname "$(readlink -f "$0")")"
-readonly install_dest="/opt/labadmin-script_server/linux_agent/"
-
+readonly install_dest="/opt/labadmin-script_server_agent/linux/"
 
 
 #===============================================================================
