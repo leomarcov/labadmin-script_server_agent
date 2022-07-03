@@ -20,3 +20,4 @@ readonly sshport="58889"														# SSH port
 readonly sshuser="labadmin"														# SSH username
 readonly sshcmd="/opt/labadmin-script_server/srv/labadmin-script_server"		# Labadmin script server command path in remote server
 readonly sshprivatekey_path="${agent_path}/id_rsa"								# Local ssh private key path for ssh authentication
+c
