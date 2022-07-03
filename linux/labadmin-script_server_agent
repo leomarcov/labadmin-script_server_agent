@@ -60,7 +60,7 @@ function call_script_server() {
 	local script="$2"
 	local exec_msg="$3"
 
-	ssh 2>&1 -T -i "$sshprivatekey_path" ${sshuser}@${sshaddress} -p ${sshport} "${sshcmd} -h \"${hostname}\" -o \"${os}\" $([ "${action}" ] && echo "-a \""${action}"\"") $([ "${script}" ] && echo "-s \""${script}"\"") $([ "${exec_msg}" ] && echo "-m \""${exec_msg}"\"")" 
+	ssh 2>&1 -T -i "$sshprivatekey_path" ${sshuser}@${sshaddress} -p ${sshport} "${sshcmd} -h \"${hostname}\" -o \"${repository}\" $([ "${action}" ] && echo "-a \""${action}"\"") $([ "${script}" ] && echo "-s \""${script}"\"") $([ "${exec_msg}" ] && echo "-m \""${exec_msg}"\"")" 
 	return $?
 }
 
