@@ -115,8 +115,12 @@ function main() {
 		exit 1
 	fi
 	script_list="$call_output"
-	echo "$script_list"
 	log "list_ok" "" "$script_list"
+	if [ ! "$script_list" ]; then
+		echo "No scripts pending"
+		exit 0
+	fi
+	echo "$script_list"
 
 	# GET AND EXEC SCRIPTS
 	IFS2="$IFS"; IFS=$'\n';
