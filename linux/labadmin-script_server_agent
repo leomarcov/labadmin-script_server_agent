@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+#===================================================================================
+# LABADMIN SCRIPT SERVER AGENT
+#         FILE: labadmin-script_server_agent
+#
+#  DESCRIPTION: Labadmin script server client agent
+#
+#       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
+#	   LICENSE: GNU General Public License v3.0
+#      VERSION: 2022.06
+#      CREATED: 28.06.2022
+#=================================================================================== 
+
+
+#===============================================================================
+#  GLOBAL VARIABLES
+#===============================================================================
+readonly agent_path="$(dirname "$(readlink -f "$0")")"
+readonly hostname=$(hostname)
+readonly os=linux
+
+# LOAD CONFIG VARIABLES
+source "${agent_path}/config"
+
+
+
+#=== FUNCTION ==================================================================
+#        NAME: log
+# DESCRIPTION: write in log file using format: [date time] HOSTNAME ACTION EXEC_MSG
+#===============================================================================
+function log() {
+	local action="$1"
+	local script="$2"
+	local exec_msg="$3"
+
+	action_width=11
+	action="[${action^^}]$(seq -s" " 1 $(($action_width-${#action}))|tr -d "[0-9]")"
+	[ "$script" ] && script="[$script]"$'\t'
+
+	log_msg="[$(date "+%Y-%m-%d %H:%M:%S")] ${action} ${script}"
+	[ "$exec_msg" ] && log_msg="${log_msg}
+#### EXEC OUTPUT #############################################################
+$(echo "${exec_msg}" | sed -e 's/^/ /')
+##############################################################################
+"
+	echo -e "${log_msg}" >> "$log_path"
+}
+
+
+#=== FUNCTION ==================================================================
+#        NAME: call_script_server
+# DESCRIPTION: call ssh labadmin_script-server manager
+# PARAMETERS:
+#	$1 	action
+#	$2 	script
+#	$3 	exec_msg
+#===============================================================================
+function call_script_server() {
+	local action="$1"
+	local script="$2"
+	local exec_msg="$3"
+
+	ssh 2>&1 -T -i "$sshprivatekey_path" ${sshuser}@${sshaddress} -p ${sshport} "${sshcmd} -h \"${hostname}\" -o \"${os}\" $([ "${action}" ] && echo "-a \""${action}"\"") $([ "${script}" ] && echo "-s \""${script}"\"") $([ "${exec_msg}" ] && echo "-m \""${exec_msg}"\"")" 
+	return $?
+}
+
+
+#=== FUNCTION ==================================================================
+#        NAME: wait_connection
+# DESCRIPTION: wait until connection is active
+#===============================================================================
+function wait_connection() {
+	n=10	# Number of tries
+	d=10	# Delay in seconds in each time
+
+	for i in $(seq 1 $n); do
+		wget -q --spider http://google.com &>/dev/null && return 0
+		echo "Waiting for Internet connection..."
+		sleep $d
+	done
+	echo -e "\e[1m\e[31mTimeout waiting for connection\e[0m"
+	exit 1
+}
+
+
+#=== FUNCTION ==================================================================
+#        NAME: check_root
+# DESCRIPTION: check if script is exectued as root
+#===============================================================================
+function check_root() {
+	[ "$UID" -eq 0 ] && return 0
+	echo -e "\e[1m\e[31mMust be exec with administrative privileges\e[0m"
+	exit 1
+}
+
+
+
+
+#=== FUNCTION ==================================================================
+#        NAME: main
+# DESCRIPTION: main codeº
+#===============================================================================
+function main() {
+	# INIT
+	check_root
+	wait_connection
+
+
+	# GET PENDING SCRIPT LIST
+	echo -e "\e[1mGetting pending scripts list...\e[0m"
+	call_output=$(call_script_server "list")
+	if [ $? -ne 0 ]; then
+		echo -e "\e[1m\e[31mError getting pending scripts list\e[0m"
+		echo "$call_output"
+		log "list_error" "" "$call_output"
+		exit 1
+	fi
+	script_list="$call_output"
+	echo "$script_list"
+	log "list_ok" "" "$script_list"
+
+	# GET AND EXEC SCRIPTS
+	IFS2="$IFS"; IFS=$'\n';
+	for script in $script_list; do
+		echo
+		echo "##########################################################################"
+
+		# GET SCRIPT CODE
+		echo -e "\e[1mGetting script code for:\e[0m $script"
+		script_code=$(call_script_server "get" "$script")
+		if [ $? -ne 0 ]; then
+			echo -e "\e[1m\e[31mError getting script code $script\e[0m"
+			echo "$script_code"
+			log "get_error" "$script" "$script_code"
+			continue
+		fi
+		echo -e "$script: $(echo "$script_code" | wc -l) lines"
+		echo
+
+		# EXEC SCRIPT
+		echo -e "\e[1mExecuting  script code for:\e[0m $script"
+		exec_msg=$(echo "$script_code" | bash 2>&1)
+		exec_code=$?
+		echo "$exec_msg"
+		if [ $exec_code -eq 0 ]; then 
+			log "exec_ok" "$script"
+			call_script_server "exec_ok" "$script"
+		else
+			echo -e "\e[1m\e[31mError executing script code $script\e[0m"
+			log "exec_error" "$script" "$exec_msg"
+			exec_msg_min="${exec_msg//$'\n'/ \\ }"; exec_msg_min="${exec_msg_min:0:50}"
+			call_script_server "exec_error" "$script" "${exec_msg_min} ..."
+		fi
+	done
+	IFS="$IFS2"
+	echo
+}
+
+main "$@"
