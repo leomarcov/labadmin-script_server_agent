@@ -62,6 +62,7 @@ StandardError=jorunal
 WantedBy=multi-user.target' > /etc/systemd/system/labadmin-script_server_agent.service
 cat /etc/systemd/system/labadmin-script_server_agent.service
 
+echo
 echo -e "\e[1mEnabling service\e[0m"
 systemctl daemon-reload
 systemctl enable labadmin-script_server_agent.service
