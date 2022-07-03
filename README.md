@@ -1,5 +1,5 @@
 # labadmin-script_server_agent
-Host agent to connect to Labadmin Script Server
+Host agent to connect to [Labadmin Script Server](https://github.com/leomarcov/labadmin-script_server)
 
 
 &nbsp;  
