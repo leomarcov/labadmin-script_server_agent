@@ -1,2 +1,10 @@
 # labadmin-script_server_agent
 Agent to connect to Labadmin Script Server
+
+
+&nbsp;  
+# Lincense
+Labadmin Script Server license is [GPLv3](LICENSE)
+
+# Contact
+My name is Leonardo Marco. I'm sysadmin teacher in [CIFP Carlos III](https://cifpcarlos3.es/), Cartagena, Murcia (Spain).
