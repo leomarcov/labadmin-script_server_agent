@@ -13,19 +13,37 @@
 #===============================================================================
 #  GLOBAL VARIABLES
 #===============================================================================
-readonly install_src="$(dirname "$(readlink -f "$0")")"
-readonly install_dest="/opt/labadmin-script_server_agent/linux/"
+readonly install_dest="/opt/labadmin-script_server_agent/linux/"	# Destination install directory
+readonly install_src="$(dirname "$(readlink -f "$0")")"				# Dont change
+
+
+#=== FUNCTION ==================================================================
+#        NAME: check_root
+# DESCRIPTION: check if script is exectued as root
+#===============================================================================
+function check_root() {
+	[ "$UID" -eq 0 ] && return 0
+	echo -e "\e[1m\e[31mMust be exec with administrative privileges\e[0m"
+	exit 1
+}
 
 
 #===============================================================================
 #  AGENT INSTALL
 #===============================================================================
 
+# CHECK PRIVILEGES
+if ! check_root; then
+	echo "Must be as administrator"
+	exit 1
+fi
+
 # COPY FILES
 if [ $(realpath "$install_src") != $(realpath "$install_dest") ]; then
 	echo -e "\e[1mCopying files to "$install_dest"\e[0m"
 	[ ! -d "$install_dest" ] && mkdir -vp "$install_dest" 
-	chmod 700 "$install_dest"
+	chmod -R 700 "$install_dest"
+	chown -R root:root "$install_dest"
 	cp -vr "${install_src}/"* "$install_dest/"
 fi
 
