@@ -96,7 +96,7 @@ function initialize() {
 	fi
 		
 	# CHECK SSH PRIVATE KEY
-	if ! ssh-keygen -l -f "$sshprivatekey_path" &>/dev/null; then
+	if ! ssh-keygen -l -f "$sshprivatekey_path" 1>/dev/null; then
 		echo -e "\e[1m\e[31mError loading SSH agent private key: $sshprivatekey_path\e[0m"
 		exit 1
 	fi
