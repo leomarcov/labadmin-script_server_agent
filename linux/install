@@ -78,6 +78,6 @@ systemctl status labadmin-script_server_agent.service
 echo; echo
 echo -e "\e[1mMANUAL STEPS TO COMPLETE INSTALLATION:\e[0m"
 echo -e "  * Edit \e[1m${install_dest}/config\e[0m file and set variables to set SSH connection config"
-echo -e "  * Generate your own SSH private key (ssh-keygen), copy to \e[1m${install_dest}\e[0m and config path in config file"
+echo -e "  * Generate your own SSH private key (ssh-keygen), copy to \e[1m${install_dest}\e[0m and set \e[1msshprivatekey_path\e[0m in config file"
 echo -e "  * Set permissions \e[1m600\e[0m to private key"
-echo -e "  * Copy ssh server public key to \e[1m/root/.ssh/known_hosts\e[0m"
+echo -e "  * Add ssh server public key to \e[1m/root/.ssh/known_hosts\e[0m file"
