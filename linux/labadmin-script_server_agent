@@ -82,16 +82,28 @@ function wait_connection() {
 }
 
 
-#=== FUNCTION ==================================================================
-#        NAME: check_root
-# DESCRIPTION: check if script is exectued as root
-#===============================================================================
-function check_root() {
-	[ "$UID" -eq 0 ] && return 0
-	echo -e "\e[1m\e[31mMust be exec with administrative privileges\e[0m"
-	exit 1
-}
 
+
+#=== FUNCTION ==================================================================
+#        NAME: initialize
+# DESCRIPTION: performs init checks
+#===============================================================================
+function initialize() {
+	# CHECK ROOT
+	if [ ! "$UID" -eq 0 ]; then
+		echo -e "\e[1m\e[31mMust be exec with administrative privileges\e[0m"
+		exit 1
+	fi
+		
+	# CHECK SSH PRIVATE KEY
+	if ! ssh-keygen -l -f "$sshprivatekey_path" &>/dev/null; then
+		echo -e "\e[1m\e[31mError loading SSH agent private key: $sshprivatekey_path\e[0m"
+		exit 1
+	fi
+	
+	# WAIT CONNECTION
+	wait_connection
+}
 
 
 
@@ -101,8 +113,7 @@ function check_root() {
 #===============================================================================
 function main() {
 	# INIT
-	check_root
-	wait_connection
+	initialize
 
 
 	# GET PENDING SCRIPT LIST
