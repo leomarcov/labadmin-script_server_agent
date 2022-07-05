@@ -35,14 +35,19 @@ function check_root() {
 # CHECK PRIVILEGES
 check_root
 
+# CHECK INSTALL DIRS
+
+
 # COPY FILES
 if [ $(realpath "$install_src") != $(realpath "$install_dest") ]; then
 	echo -e "\e[1mCopying files to "$install_dest"\e[0m"
 	[ ! -d "$install_dest" ] && mkdir -vp "$install_dest" 
+	rm -rf "${install_dest}"/* "$install_dest"/.[!.]*
 	cp -vr "${install_src}/"* "$install_dest/"
 	echo
 fi
 chmod -R 700 "$install_dest"
+chmod 600 "${install_dest}"/*.pk
 chown -R root:root "$install_dest"
 
 # CREATING SERVICE
@@ -72,7 +77,7 @@ systemctl status labadmin-script_server_agent.service
 # CONFIG FILES
 echo; echo
 echo -e "\e[1mMANUAL STEPS TO COMPLETE INSTALLATION:\e[0m"
-echo -e "  * Edit \e[1m${install_dest}/config\e[0m file and set variables to config ssh connection"
-echo -e "  * Copy ssh private key to \e[1m${install_dest}\e[0m and config path in config file"
+echo -e "  * Edit \e[1m${install_dest}/config\e[0m file and set variables to set SSH connection config"
+echo -e "  * Generate your own SSH private key (ssh-keygen), copy to \e[1m${install_dest}\e[0m and config path in config file"
 echo -e "  * Set permissions \e[1m600\e[0m to private key"
 echo -e "  * Copy ssh server public key to \e[1m/root/.ssh/known_hosts\e[0m"
