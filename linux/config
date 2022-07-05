@@ -22,5 +22,5 @@ readonly sshcmd="/opt/labadmin-script_server/labadmin-script_server"			# Labadmi
 # Local ssh agent key key path for ssh client authentication
 # By default first .pk file in agent install path
 # CAUTION: please consider generate and copy your own keys
-readonly sshprivatekey_path="${agent_path}/$(ls "${agent_path}"/*.pk|head -1)"								
+readonly sshprivatekey_path="$(ls "${agent_path}"/*.pk|head -1)"								
 
