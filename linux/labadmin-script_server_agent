@@ -128,7 +128,7 @@ function main() {
 	script_list="$call_output"
 	log "list_ok" "" "$script_list"
 	if [ ! "$script_list" ]; then
-		echo "No scripts pending"
+		echo "0 pending scripts"
 		exit 0
 	fi
 	echo "$script_list"
