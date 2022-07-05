@@ -19,8 +19,8 @@ readonly sshport="58889"														# SSH port
 readonly sshuser="labadmin"														# SSH username
 readonly sshcmd="/opt/labadmin-script_server/labadmin-script_server"			# Labadmin script server command path in remote server
 
-# Local ssh agent key key path for ssh client authentication
+# Local SSH agent key key path for ssh client authentication
 # By default first .pk file in agent install path
-# CAUTION: please consider generate and copy your own keys
+# CAUTION: consider generate and copy your own keys
 readonly sshprivatekey_path="$(ls "${agent_path}"/*.pk|head -1)"								
 
