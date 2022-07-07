@@ -66,18 +66,18 @@ function call_script_server() {
 
 #=== FUNCTION ==================================================================
 #        NAME: wait_connection
-# DESCRIPTION: wait until connection is active
+# DESCRIPTION: wait until server connection is active
 #===============================================================================
 function wait_connection() {
 	n=10	# Number of tries
 	d=10	# Delay in seconds in each time
 
 	for i in $(seq 1 $n); do
-		wget -q --spider http://google.com &>/dev/null && return 0
-		echo "Waiting for Internet connection..."
+		wget -q --spider "$sshaddress" &>/dev/null && return 0
+		echo "Waiting for server connection..."
 		sleep $d
 	done
-	echo -e "\e[1m\e[31mTimeout waiting for connection\e[0m"
+	echo -e "\e[1m\e[31mTimeout waiting for server connection\e[0m"
 	exit 1
 }
 
