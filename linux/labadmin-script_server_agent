@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #===================================================================================
-# LABADMIN SCRIPT SERVER AGENT
+# LABADMIN SCRIPT SERVER AGENT FOR LINUX
 #         FILE: labadmin-script_server_agent
-#  DESCRIPTION: Labadmin script server client agent
+#  DESCRIPTION: Labadmin script server client agent for Linux hosts
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
 #	   LICENSE: GNU General Public License v3.0
