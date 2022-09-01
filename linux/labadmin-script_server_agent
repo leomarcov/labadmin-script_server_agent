@@ -73,7 +73,7 @@ function wait_connection() {
 	d=10	# Delay in seconds in each time
 
 	for i in $(seq 1 $n); do
-		wget -q --spider "$sshaddress" &>/dev/null && return 0
+		nc -z "$sshaddress" "$sshport" &>/dev/null && return 0
 		echo "Waiting for server connection..."
 		sleep $d
 	done
