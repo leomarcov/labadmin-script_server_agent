@@ -15,4 +15,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
 New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno 
 New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno -KeyFile 'c:\windows\...'
 
-Invoke-SSHCommand -SessionId 0 -Command "ls /"
+# CREATE JOB SCHEDULE
+Unregister-ScheduledJob labadmin-script_server-agent
+$agent_path="C:\ProgramData\labadmin-script_server_agent\labadmin-script_server_agent.ps1"
+set-executionpolicy remotesigned
+Register-ScheduledJob -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -FilePath $agent_path -Name labadmin-script_server-agent
