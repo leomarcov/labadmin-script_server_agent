@@ -13,12 +13,12 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$log_path="${agent_path}\log.txt"										# File path where save logs
+$log_path="${agent_path}\log.txt"									# File path where save logs
+$repository="windows"												# Script repository name
 $sshaddress="10.0.2.15"												# SSH IP address
 $sshport="58889"													# SSH port
 $sshuser="labadmin"													# SSH username
 $sshcmd="/opt/labadmin-script_server/labadmin-script_server"		# Labadmin script server command path in remote server
-
 
 # Local SSH agent key path for ssh authentication
 # CAUTION: after install sample keys are used, pelase consider generate and copy your own keys
