@@ -11,12 +11,14 @@ Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NetFramework\v4.0.30319' -Name
 
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
 Install-Module -Name Posh-SSH -Force
-New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno 
-New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno -KeyFile 'c:\windows\...'
+# Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno 
+# Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno -KeyFile 'c:\windows\...'
 
 # CREATE JOB SCHEDULE
 Unregister-ScheduledJob labadmin-script_server-agent
 $agent_path="C:\ProgramData\labadmin-script_server_agent\labadmin-script_server_agent.ps1"
 Register-ScheduledJob -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -FilePath $agent_path -Name labadmin-script_server-agent
+# List jobs: get-job
+# Show job messages: (get-job)[0].error
 
 
