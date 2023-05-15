@@ -15,9 +15,8 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$agent_path=Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent\windows"
 $hostname=[Environment]::MachineName
-$repository="windows"
 
 # LOAD CONFIG VARIABLES
 . ${agent_path}\config.ps1
