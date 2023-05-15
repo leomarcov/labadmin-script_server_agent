@@ -2,13 +2,19 @@
 # Install WMF 5.1: https://docs.microsoft.com/es-es/powershell/scripting/windows-powershell/wmf/setup/install-configure?view=powershell-7.2
 
 
-# W7 only: ENABLE TLS 1.2
+# CLONE GITHUB PROYECT
+# Install GitHub CLI: https://github.com/cli/cli/releases/
+git clone https://github.com/labadmin-script_server_agent
+
+
+#### W7 only: ENABLE TLS 1.2
 # https://www.delftstack.com/howto/powershell/installing-the-nuget-package-in-powershell/
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
 [Net.ServicePointManager]::SecurityProtocol
-# Restart PowerShell
+#### Restart PowerShell
 
+# INSTALL POSH-SSH
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
 Install-Module -Name Posh-SSH -Force
 # Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno 
