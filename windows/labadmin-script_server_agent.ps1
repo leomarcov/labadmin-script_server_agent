@@ -150,16 +150,18 @@ ForEach ($script in $($script_list -split "`r`n"))
     $script_code=$call_output.Output -join "`n"
     # EXEC SCRIPT
     Write-Output "Executing  script code for: $script"
-    $exec_msg=(Invoke-Expression -Command $script_code) 2>&1
-    $exec_code=$?
-    $exec_msg
+    $exec_output=(Invoke-Expression -Command $script_code) 2>&1
+    $exec_code=$exec_output[-1]
+    $exec_msg=$exec_output[0..($exec_output.Length-2)] | Out-String
+	$exec_msg
+	echo "EXIT CODE: $exec_code"
     if($exec_code) {
         log "exec_ok" $script
         call_script_server "exec_ok" $script *>$null
     } else {
 		Write-Output "Error executing script code $script"
 		log "exec_error" $script $exec_msg
-		call_script_server "exec_error" $script $exec_msg.replace("`n", " \ ").substring(0,50)+" ..." *>$null
+		call_script_server "exec_error" $script $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Lenght, 50))+" ..." *>$null
     }
 }
 
