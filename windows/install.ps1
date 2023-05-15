@@ -4,10 +4,11 @@
 
 # CLONE GITHUB PROYECT
 # Install GitHub CLI: https://github.com/cli/cli/releases/
-git clone https://github.com/labadmin-script_server_agent
+cd $ENV:ProgramFiles
+git clone "https://github.com/labadmin-script_server_agent"
 
 
-#### W7 only: ENABLE TLS 1.2
+#### W7 ONLY: ENABLE TLS 1.2
 # https://www.delftstack.com/howto/powershell/installing-the-nuget-package-in-powershell/
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
