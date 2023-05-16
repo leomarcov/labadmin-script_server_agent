@@ -2,26 +2,12 @@
 # Install WMF 5.1: https://docs.microsoft.com/es-es/powershell/scripting/windows-powershell/wmf/setup/install-configure?view=powershell-7.2
 
 #### INSTALL GITHUB ###########################################################
-$file = 'gh_2.29.0_windows_amd64.msi'
-$link = "https://github.com/cli/cli/releases/download/v2.29.0/$file"
-$soft_name = 'GitHub'
-$find = Get-WmiObject -Class Win32_Product -Filter "Name LIKE `'$soft_name`'"
-if ($find -eq $null) {
-    $tmp = "$env:TEMP\$file"
-    $client = New-Object System.Net.WebClient
-    $client.DownloadFile($link, $tmp)
-    msiexec /i $tmp /qn
-    del $tmp
-    echo "Tried installing $soft_name"
-} else {
-    echo "ERROR: $soft_name is already installed."
-    echo $find
-}
+$url="https://github.com/leomarcov/labadmin-script_server_agent/archive/refs/heads/main.zip"
+$tmp = "$env:TEMP\labadmin-script_server_agent.zip"
+Invoke-WebRequest -Uri $url -OutFile $tmp
+Expand-Archive -Path $tmp -DestinationPath $ENV:ProgramFiles
+del $tmp
 #################################################################################
-
-# CLONE GITHUB PROYECT
-cd $ENV:ProgramFiles
-git clone "https://github.com/labadmin-script_server_agent"
 
 
 #### W7 ONLY: ENABLE TLS 1.2 #####################################################
@@ -39,7 +25,7 @@ Install-Module -Name Posh-SSH -Force
 
 # CREATE JOB SCHEDULE
 Unregister-ScheduledJob labadmin-script_server-agent
-$agent_path="C:\ProgramData\labadmin-script_server_agent\labadmin-script_server_agent.ps1"
+$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent\labadmin-script_server_agent.ps1"
 Register-ScheduledJob -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -FilePath $agent_path -Name labadmin-script_server-agent
 # List jobs: get-job
 # Show job messages: (get-job)[0].error
