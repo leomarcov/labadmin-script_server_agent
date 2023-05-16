@@ -2,9 +2,8 @@
 # Install WMF 5.1: https://docs.microsoft.com/es-es/powershell/scripting/windows-powershell/wmf/setup/install-configure?view=powershell-7.2
 
 #### INSTALL GITHUB ###########################################################
-$url="https://github.com/leomarcov/labadmin-script_server_agent/archive/refs/heads/main.zip"
-$tmp = "$env:TEMP\labadmin-script_server_agent.zip"
-Invoke-WebRequest -Uri $url -OutFile $tmp
+$url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows/labadmin-script_server_agent.ps1"
+Invoke-WebRequest -Uri $url -OutFile 
 Expand-Archive -Path $tmp -DestinationPath $ENV:ProgramFiles
 del $tmp
 #################################################################################
