@@ -15,7 +15,7 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent\windows"
+$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"
 $hostname=[Environment]::MachineName
 
 # LOAD CONFIG VARIABLES
