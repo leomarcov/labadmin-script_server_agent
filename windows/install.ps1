@@ -26,7 +26,9 @@ Install-Module -Name Posh-SSH -Force
 # CREATE JOB SCHEDULE
 Unregister-ScheduledJob labadmin-script_server-agent
 $agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent\labadmin-script_server_agent.ps1"
-Register-ScheduledJob -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -FilePath $agent_path -Name labadmin-script_server-agent
+$opt = New-ScheduledJobOption -RunElevated -RequireNetwork
+$cred = Get-Credential -UserName labadmin
+Register-ScheduledJob -Name labadmin-script_server-agent -FilePath $agent_path -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -ScheduledJobOption $opt -Credential $cred
 # List jobs: get-job
 # Show job messages: (get-job)[0].error
 
