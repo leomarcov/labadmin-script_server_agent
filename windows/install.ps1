@@ -27,7 +27,7 @@ Install-Module -Name Posh-SSH -Force
 # Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno -KeyFile 'c:\windows\...'
 
 # CREATE JOB SCHEDULE
-Unregister-ScheduledJob labadmin-script_server-agent
+if(Get-ScheduledJob labadmin-script_server-agent) { Unregister-ScheduledJob labadmin-script_server-agent }
 $job_opt = New-ScheduledJobOption -RunElevated -RequireNetwork
 $job_cred = Get-Credential -UserName labadmin
 Register-ScheduledJob -Name labadmin-script_server-agent -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -ScheduledJobOption $job_opt -Credential $job_cred
