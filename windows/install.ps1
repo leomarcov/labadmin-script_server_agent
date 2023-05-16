@@ -1,19 +1,36 @@
 # Install .Net Framework 4.7.2: https://support.microsoft.com/es-es/topic/microsoft-net-framework-instalador-sin-conexi%C3%B3n-4-7-2-para-windows-05a72734-2127-a15d-50cf-daf56d5faec2
 # Install WMF 5.1: https://docs.microsoft.com/es-es/powershell/scripting/windows-powershell/wmf/setup/install-configure?view=powershell-7.2
 
+#### INSTALL GITHUB ###########################################################
+$file = 'gh_2.29.0_windows_amd64.msi'
+$link = "https://github.com/cli/cli/releases/download/v2.29.0/$file"
+$soft_name = 'GitHub'
+$find = Get-WmiObject -Class Win32_Product -Filter "Name LIKE `'$soft_name`'"
+if ($find -eq $null) {
+    $tmp = "$env:TEMP\$file"
+    $client = New-Object System.Net.WebClient
+    $client.DownloadFile($link, $tmp)
+    msiexec /i $tmp /qn
+    del $tmp
+    echo "Tried installing $soft_name"
+} else {
+    echo "ERROR: $soft_name is already installed."
+    echo $find
+}
+#################################################################################
 
 # CLONE GITHUB PROYECT
-# Install GitHub CLI: https://github.com/cli/cli/releases/
 cd $ENV:ProgramFiles
 git clone "https://github.com/labadmin-script_server_agent"
 
 
-#### W7 ONLY: ENABLE TLS 1.2
+#### W7 ONLY: ENABLE TLS 1.2 #####################################################
 # https://www.delftstack.com/howto/powershell/installing-the-nuget-package-in-powershell/
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
 [Net.ServicePointManager]::SecurityProtocol
-#### 
+################################################################################# 
+
 
 # INSTALL POSH-SSH
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
