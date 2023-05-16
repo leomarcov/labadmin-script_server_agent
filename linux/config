@@ -16,7 +16,7 @@
 readonly log_path="/var/log/labadmin-script_server_agent"						# File path where save logs
 readonly sshaddress="10.119.171.216"											# SSH IP address
 readonly sshport="58889"														# SSH port
-readonly sshuser="labadmin"														# SSH username
+readonly sshuser="lssagent"														# SSH username
 readonly sshcmd="/opt/labadmin-script_server/labadmin-script_server"			# Labadmin script server command path in remote server
 
 # Local SSH agent key path for ssh authentication
