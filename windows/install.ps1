@@ -5,7 +5,7 @@ $agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"
 $agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
 
 #### INSTALL FILES ###########################################################
-New-Item -ItemType Directory -Path $agent_path
+if (-not (Test-Path $agent_path)) {	New-Item -ItemType Directory -Path $agent_path } 
 $url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows/labadmin-script_server_agent.ps1"
 Invoke-WebRequest -Uri $url -OutFile $agent_file
 $url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows/config.ps1"
@@ -27,7 +27,7 @@ Install-Module -Name Posh-SSH -Force
 # Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno -KeyFile 'c:\windows\...'
 
 # CREATE JOB SCHEDULE
-Unregister-ScheduledJob labadmin-script_server-agent
+Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContinue
 $job_opt = New-ScheduledJobOption -RunElevated -RequireNetwork
 $job_cred = Get-Credential -Credential labadmin
 Register-ScheduledJob -Name labadmin-script_server-agent -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -ScheduledJobOption $job_opt -Credential $job_cred
