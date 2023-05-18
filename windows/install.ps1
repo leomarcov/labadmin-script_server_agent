@@ -5,9 +5,9 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-	$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"
-	$agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
-	$localuser="labadmin"
+$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"
+$agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
+$localuser="labadmin"
 
 #===============================================================================
 #  CREATE LOCAL USER FOR SCRIPT EXECUTION
