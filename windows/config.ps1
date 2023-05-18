@@ -13,8 +13,8 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$log_path="${agent_path}\log.txt"									# File path where save logs
 $repository="windows"												# Server repository name to query scripts
+$log_path="${agent_path}\log.txt"									# File path where save logs
 $sshaddress="10.0.2.15"												# SSH IP address
 $sshport="58889"													# SSH port
 $sshuser="lss-agent"												# SSH username
