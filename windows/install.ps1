@@ -11,8 +11,8 @@
 #===============================================================================
 #  CREATE LOCAL USER
 #===============================================================================
-New-LocalUser -Name $localuser -FullName "Labadmin Script Server Agent" -NoPasswordExpiration
-Add-LocalGroupMember -Member $localuser -Group "Administrators"
+New-LocalUser -Name $localuser -FullName "Labadmin Script Server Agent" -AccountNeverExpires
+Add-LocalGroupMember -Member $localuser -Group ((New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")).Translate([System.Security.Principal.NTAccount]))
 
 
 
