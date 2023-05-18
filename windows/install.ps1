@@ -10,7 +10,7 @@
 	$localuser="labadmin"
 
 #===============================================================================
-#  CREATE LOCAL USER
+#  CREATE LOCAL USER FOR SCRIPT EXECUTION
 #===============================================================================
 if (-not (Get-LocalUser -Name $nombreUsuario -ErrorAction SilentlyContinue)) {
 	Write-Host "`nCreating local user $agent_path ..." -ForegroundColor Green
