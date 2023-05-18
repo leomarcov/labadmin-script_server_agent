@@ -2,10 +2,10 @@
 # Install WMF 5.1: https://docs.microsoft.com/es-es/powershell/scripting/windows-powershell/wmf/setup/install-configure?view=powershell-7.2
 
 
-Invoke-Command -ComputerName localhost -Credential (Get-Credential -Credential $user) -ScriptBlock {
+Invoke-Command -ComputerName localhost -Credential (Get-Credential -Credential $localuser) -ScriptBlock {
 	$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"
 	$agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
-	$user="labadmin"
+	$localuser="labadmin"
 
 	#### INSTALL FILES ###########################################################
 	Write-Host "`nCreating files on $agent_path ..." -ForegroundColor Green
@@ -22,7 +22,7 @@ Invoke-Command -ComputerName localhost -Credential (Get-Credential -Credential $
 	$acl=Get-Acl $pk_file
 	$acl.SetAccessRuleProtection($true, $false)
 	$acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
-	$acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($user, "FullControl", "Allow")))
+	$acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($localuser, "FullControl", "Allow")))
 	Set-Acl -Path $pk_file -AclObject $acl
 	#################################################################################
 
