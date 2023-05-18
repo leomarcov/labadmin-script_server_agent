@@ -16,7 +16,6 @@
 #===============================================================================
 readonly agent_path="$(dirname "$(readlink -f "$0")")"
 readonly hostname=$(hostname)
-readonly repository=linux
 
 # LOAD CONFIG VARIABLES
 source "${agent_path}/config"
