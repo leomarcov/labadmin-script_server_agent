@@ -7,15 +7,14 @@ Invoke-Command -ComputerName localhost -Credential (Get-Credential -Credential $
 	$agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
 	$user="labadmin"
 
-
 	#### INSTALL FILES ###########################################################
 	Write-Host "`nCreating files on $agent_path ..." -ForegroundColor Green
 	if (-not (Test-Path $agent_path)) {	New-Item -ItemType Directory -Path $agent_path } 
 	$url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows"
 	Invoke-WebRequest -Uri ($url+"/labadmin-script_server_agent.ps1") -OutFile ($agent_path+"\labadmin-script_server_agent.ps1")
-	Invoke-WebRequest -Uri ($url+"/config.ps1") -OutFile ($agent_path+"\config.ps1")
-	Invoke-WebRequest -Uri ($url+"/id_labadmin-agent_win.pk") -OutFile ($agent_path+"\id_labadmin-agent_win.pk")
 	Invoke-WebRequest -Uri ($url+"/install.ps1") -OutFile ($agent_path+"\install.ps1")
+	if (-not (Test-Path ($agent_path+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/config.ps1") -OutFile ($agent_path+"\config.ps1") }
+	if (-not (Test-Path ($agent_path+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/id_labadmin-agent_win.pk") -OutFile ($agent_path+"\id_labadmin-agent_win.pk") }
 	if (-not (Test-Path ($agent_path+"\log.txt"))) { New-Item -ItemType File -Path ($agent_path+"\log.txt") -Force }
 	
 	# Set private key permissions
