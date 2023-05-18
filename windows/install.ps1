@@ -14,7 +14,7 @@
 #===============================================================================
 if (-not (Get-LocalUser -Name $nombreUsuario -ErrorAction SilentlyContinue)) {
 	Write-Host "`nCreating local user $agent_path ..." -ForegroundColor Green
-	New-LocalUser -Name $localuser -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Disabled NoPassword
+	New-LocalUser -Name $localuser -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Disabled -NoPassword
 	Add-LocalGroupMember -Member $localuser -SID "S-1-5-32-544"			# Add user to local Administrators group
 }
 
