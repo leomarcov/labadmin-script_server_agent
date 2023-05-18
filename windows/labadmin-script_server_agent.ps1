@@ -15,12 +15,9 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"
 $hostname=[Environment]::MachineName
-
-# LOAD CONFIG VARIABLES
-. ${agent_path}\config.ps1
-
+$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"
+. ${agent_path}\config.ps1				# LOAD CONFIG VARIABLES
 
 
 #=== FUNCTION ==================================================================
