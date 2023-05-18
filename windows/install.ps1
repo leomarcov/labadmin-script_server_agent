@@ -6,10 +6,11 @@ $agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
 
 #### INSTALL FILES ###########################################################
 if (-not (Test-Path $agent_path)) {	New-Item -ItemType Directory -Path $agent_path } 
-$url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows/labadmin-script_server_agent.ps1"
-Invoke-WebRequest -Uri $url -OutFile $agent_file
-$url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows/config.ps1"
-Invoke-WebRequest -Uri $url -OutFile ($agent_path+"\config.ps1")
+	$url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows"
+	Invoke-WebRequest -Uri ($url+"/labadmin-script_server_agent.ps1") -OutFile ($agent_path+"\labadmin-script_server_agent.ps1")
+	Invoke-WebRequest -Uri ($url+"/config.ps1") -OutFile ($agent_path+"\config.ps1")
+	Invoke-WebRequest -Uri ($url+"/id_labadmin-agent_win.pk.ps1") -OutFile ($agent_path+"\id_labadmin-agent_win.pk.ps1")
+	Invoke-WebRequest -Uri ($url+"/install.ps1") -OutFile ($agent_path+"\install.ps1")
 #################################################################################
 
 
