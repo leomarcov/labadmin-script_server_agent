@@ -13,7 +13,7 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-readonly repository=linux														# Server repository to query scripts
+readonly repository=linux														# Server repository name to query scripts
 readonly log_path="/var/log/labadmin-script_server_agent"						# File path where save logs
 readonly sshaddress="10.119.171.216"											# SSH IP address
 readonly sshport="58889"														# SSH port
