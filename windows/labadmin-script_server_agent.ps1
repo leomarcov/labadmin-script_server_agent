@@ -15,10 +15,12 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$hostname=[Environment]::MachineName
-$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"
-. ${agent_path}\config.ps1				# LOAD CONFIG VARIABLES
+$hostname=[Environment]::MachineName								# Hostname 
+$sshcmd="/opt/labadmin-script_server/labadmin-script_server"		# Labadmin script server command path in remote server
+$agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"		# Agent installed path
 
+# LOAD CONFIG VARIABLES
+. ${agent_path}\config.ps1				
 
 #=== FUNCTION ==================================================================
 #        NAME: log
