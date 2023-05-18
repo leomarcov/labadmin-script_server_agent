@@ -11,11 +11,13 @@
 #===============================================================================
 #  CREATE LOCAL USER
 #===============================================================================
-New-LocalUser -Name $localuser -FullName "Labadmin Script Server Agent" -AccountNeverExpires
-Add-LocalGroupMember -Member $localuser -Group ((New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")).Translate([System.Security.Principal.NTAccount]))
+if (-not (Get-LocalUser -Name $nombreUsuario -ErrorAction SilentlyContinue)) {
+	Write-Host "`nCreating local user $agent_path ..." -ForegroundColor Green
+	New-LocalUser -Name $localuser -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Disabled NoPassword
+	Add-LocalGroupMember -Member $localuser --SID "S-1-5-32-544"
+}
 
-
-
+# EXEC INSTALL AS LABADMIN USER
 Invoke-Command -ComputerName localhost -Credential (Get-Credential -Credential $localuser) -ScriptBlock {
 	$agent_path=$Using:agent_path
 	$agent_file=$Using:agent_file
