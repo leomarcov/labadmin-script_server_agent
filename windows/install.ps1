@@ -8,6 +8,12 @@
 	$agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
 	$localuser="labadmin"
 
+#===============================================================================
+#  CREATE LOCAL USER
+#===============================================================================
+New-LocalUser -Name $localuser -FullName "Labadmin Script Server Agent" -NoPasswordExpiration
+Add-LocalGroupMember -Member $localuser -Group "Administrators"
+
 
 
 Invoke-Command -ComputerName localhost -Credential (Get-Credential -Credential $localuser) -ScriptBlock {
