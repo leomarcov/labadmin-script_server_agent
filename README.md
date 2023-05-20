@@ -1,4 +1,4 @@
-# labadmin-script_server_agent
+# Labadmin Script Server Agent
 Host agent service to connect to [Labadmin Script Server](https://github.com/leomarcov/labadmin-script_server)
 
 
