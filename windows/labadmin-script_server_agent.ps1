@@ -17,7 +17,7 @@
 #===============================================================================
 $agent_path=$ENV:ProgramFiles+"\labadmin-script_server_agent"				# Agent installed path
 $hostname=[Environment]::MachineName										# Hostname 
-$sshcmd="/opt/labadmin-script_server/labadmin-script_server"				# Labadmin script server command path in remote server
+$sshcmd="/opt/labadmin-script_server/lss-srv"								# Labadmin script server command path in remote server
 
 # LOAD CONFIG VARIABLES
 . ${agent_path}\config.ps1				
