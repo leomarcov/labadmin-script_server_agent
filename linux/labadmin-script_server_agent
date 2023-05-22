@@ -14,9 +14,9 @@
 #===============================================================================
 #  GLOBAL VARIABLES
 #===============================================================================
-readonly agent_path="$(dirname "$(readlink -f "$0")")"							# Agent installed path
-readonly hostname=$(hostname)													# Hostname
-readonly sshcmd="/opt/labadmin-script_server/labadmin-script_server"			# Labadmin script server command path in remote server
+readonly agent_path="$(dirname "$(readlink -f "$0")")"					# Agent installed path
+readonly hostname=$(hostname)											# Hostname
+readonly sshcmd="/opt/labadmin-script_server/lss-srv"					# Labadmin script server command path in remote server
 
 # LOAD CONFIG VARIABLES
 source "${agent_path}/config"
