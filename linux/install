@@ -39,7 +39,7 @@ check_root
 
 
 # COPY FILES
-if [ $(realpath "$install_src") != $(realpath "$install_dest") ]; then
+if [ "$(realpath "$install_src")" != "$(realpath "$install_dest")" ]; then
 	echo -e "\e[1mCopying files to "$install_dest"\e[0m"
 	[ ! -d "$install_dest" ] && mkdir -vp "$install_dest" 
 	rm -rf "${install_dest}"/* "$install_dest"/.[!.]*
