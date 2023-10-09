@@ -151,7 +151,7 @@ ForEach ($script in $($script_list -split "`r`n"))
     Write-Output "Executing  script code for: $script"
     $exec_output=(Invoke-Expression -Command $script_code) 2>&1
     $exec_code=$exec_output[-1]
-    $exec_msg=$exec_output[0..($exec_output.Length-2)] | Out-String
+    $exec_msg=($exec_output[0..($exec_output.Length-2)] | Out-String).Trim()
 	$exec_msg
 	echo "EXIT CODE: $exec_code"
     if($exec_code) {
