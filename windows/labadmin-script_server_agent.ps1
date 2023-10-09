@@ -160,7 +160,7 @@ ForEach ($script in $($script_list -split "`r`n"))
     } else {
 		Write-Output "Error executing script code $script"
 		log "exec_error" $script $exec_msg
-		call_script_server "exec_error" $script $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Lenght, 50))+" ..." *>$null
+		call_script_server "exec_error" $script $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Length, 50))+" ..." *>$null
     }
 }
 
