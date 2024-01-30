@@ -46,22 +46,12 @@ Invoke-Command -ComputerName localhost -Credential (Get-Credential -Credential $
 	$acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($localuser, "FullControl", "Allow")))
 	Set-Acl -Path $pk_file -AclObject $acl
 
-
-	#===============================================================================
-	#  W7: ENABLE TLS 1.2
-	#===============================================================================
-	if ([System.Environment]::OSVersion.Version.Major -eq 6) {
-		Write-Host "`nEnabling TLS 1.2 ..." -ForegroundColor Green
-		Set-ItemProperty -Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
-		Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
-		[Net.ServicePointManager]::SecurityProtocol
-	}
-
 	#===============================================================================
 	#  INSTALL POSH-SSH
 	#===============================================================================
 	Write-Host "`nInstalling Posh-SSH module..." -ForegroundColor Green
-	Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
+	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12		# ENABLE TLS 1.2
+ 	Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
 	Install-Module -Name Posh-SSH -Force
 	# Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno 
 	# Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno -KeyFile 'c:\windows\...'
