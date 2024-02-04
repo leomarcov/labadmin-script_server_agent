@@ -8,6 +8,12 @@ $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"
 $agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
 $agent_user="labadmin"
 
+if(!((New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
+	Write-Error "Must exec as Administrator"
+	exit 1
+}
+
+
 #===============================================================================
 #  GET agent_user CREDENTIAL
 #===============================================================================
