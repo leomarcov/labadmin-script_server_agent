@@ -12,14 +12,14 @@ $agent_user="labadmin"
 #  GET agent_user CREDENTIAL
 #===============================================================================
 Write-Host "`nInsert $agent_user user credentials..." -ForegroundColor Green
-$cred = Get-Credential -Credential $agent_user
+$agent_user_cred = Get-Credential -Credential $agent_user -ErrorAction Stop
 
 #===============================================================================
 #  CREATE LOCAL USER FOR SCRIPT EXECUTION
 #===============================================================================
 if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	Write-Host "`nCreating local user $agent_path ..." -ForegroundColor Green
-	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Password $cred.Password
+	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Password $agent_user_cred.Password
 	Add-LocalGroupMember -Member $agent_user -SID "S-1-5-32-544"			# Add user to local Administrators group
 	# Hide user from login screen:
 	New-Item 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList' -Force | New-ItemProperty -Name $agent_user -Value 0 -PropertyType DWord -Force
@@ -75,7 +75,7 @@ if(!(Get-Module Posh-SSH)) {
 Write-Host "`nCrearing scheduled job..." -ForegroundColor Green
 Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContinue
 $job_opt = New-ScheduledJobOption -RunElevated -RequireNetwork
-Register-ScheduledJob -Name labadmin-script_server-agent -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -ScheduledJobOption $job_opt
+Register-ScheduledJob -Credential $agent_user_cred -Name labadmin-script_server-agent -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -ScheduledJobOption $job_opt
 # List jobs: get-job
 # Show job messages: (get-job)[-1].error
 # Show job messages: (get-job)[-1].output
