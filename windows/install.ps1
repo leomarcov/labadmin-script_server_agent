@@ -8,17 +8,19 @@ $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"
 $agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
 $agent_user="labadmin"
 
+
+#===============================================================================
+#  CHECK CREDENTIALS
+#===============================================================================
+# Run as admin
 if(!((New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
 	Write-Error "Must exec as Administrator"
 	exit 1
 }
-
-
-#===============================================================================
-#  GET agent_user CREDENTIAL
-#===============================================================================
+# Get agent_user credentials
 Write-Host "`nInsert $agent_user user credentials..." -ForegroundColor Green
 $agent_user_cred = Get-Credential -Credential $agent_user -ErrorAction Stop
+
 
 #===============================================================================
 #  CREATE LOCAL USER FOR SCRIPT EXECUTION
