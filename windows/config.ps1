@@ -14,7 +14,7 @@
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
 $repository="windows"												# Server repository name to query scripts
-$log_path="${agent_path}\log.txt"									# File path where save logs
+$log_path="${agent_data}\log.txt"									# File path where save logs
 $sshaddress="10.119.171.216"										# SSH IP address
 $sshport="58889"													# SSH port
 $sshuser="lss-agent"												# SSH username
@@ -22,5 +22,5 @@ $sshuser="lss-agent"												# SSH username
 # Local SSH agent key path for ssh authentication
 # CAUTION: after install sample keys are used, pelase consider generate and copy your own keys
 # By default first .pk file in agent install path, feel free to set direct path to your key
-$sshprivatekey_path="${agent_path}\id_labadmin-agent_win.pk"
+$sshprivatekey_path="${agent_data}\id_labadmin-agent_win.pk"
 
