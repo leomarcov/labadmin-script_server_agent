@@ -11,7 +11,7 @@ $agent_user="labadmin"
 #===============================================================================
 #  GET agent_user CREDENTIAL
 #===============================================================================
-Write-Host "`nInsert $agent_user user credentials" -ForegroundColor Green
+Write-Host "`nInsert $agent_user user credentials..." -ForegroundColor Green
 $cred = Get-Credential -Credential $agent_user
 
 #===============================================================================
