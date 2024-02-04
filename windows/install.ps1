@@ -53,8 +53,8 @@ $pk_file=$agent_data+"\id_labadmin-agent_win.pk"
 $acl=Get-Acl $pk_file
 $acl.SetAccessRuleProtection($true, $false)
 $acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
-$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($agentUser)))
-$acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($agentUser, "FullControl", "Allow")))
+$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($agent_user)))
+$acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($agent_user, "FullControl", "Allow")))
 Set-Acl -Path $pk_file -AclObject $acl
 
 
