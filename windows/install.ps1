@@ -9,11 +9,16 @@ $agent_file=$agent_path+"\labadmin-script_server_agent.ps1"
 $agent_user="labadmin"
 
 #===============================================================================
+#  GET agent_user CREDENTIAL
+#===============================================================================
+$cred = Get-Credential -Credential $agent_user
+
+#===============================================================================
 #  CREATE LOCAL USER FOR SCRIPT EXECUTION
 #===============================================================================
 if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	Write-Host "`nCreating local user $agent_path ..." -ForegroundColor Green
-	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -AccountNeverExpires
+	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Password $cred
 	Add-LocalGroupMember -Member $agent_user -SID "S-1-5-32-544"			# Add user to local Administrators group
 	# Hide user from login screen:
 	New-Item 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList' -Force | New-ItemProperty -Name $agent_user -Value 0 -PropertyType DWord -Force
@@ -41,6 +46,15 @@ Invoke-WebRequest -Uri ($url+"/install.ps1") -OutFile ($agent_path+"\install.ps1
 if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/config.ps1") -OutFile ($agent_data+"\config.ps1") }
 if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/id_labadmin-agent_win.pk") -OutFile ($agent_data+"\id_labadmin-agent_win.pk") }
 if (-not (Test-Path ($agent_data+"\log.txt"))) { New-Item -ItemType File -Path ($agent_data+"\log.txt") -Force }
+
+# SET PRIVATE KEYS PERMISSIONS
+$pk_file=$agent_data+"\id_labadmin-agent_win.pk"
+$acl=Get-Acl $pk_file
+$acl.SetAccessRuleProtection($true, $false)
+$acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
+$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($agentUser)))
+$acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($agentUser, "FullControl", "Allow")))
+Set-Acl -Path $pk_file -AclObject $acl
 
 
 #===============================================================================
