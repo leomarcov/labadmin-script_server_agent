@@ -11,6 +11,7 @@ $agent_user="labadmin"
 #===============================================================================
 #  GET agent_user CREDENTIAL
 #===============================================================================
+Write-Host "`nInsert $agent_path user credentials" -ForegroundColor Green
 $cred = Get-Credential -Credential $agent_user
 
 #===============================================================================
@@ -18,7 +19,7 @@ $cred = Get-Credential -Credential $agent_user
 #===============================================================================
 if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	Write-Host "`nCreating local user $agent_path ..." -ForegroundColor Green
-	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Password $cred
+	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Password $cred.Password
 	Add-LocalGroupMember -Member $agent_user -SID "S-1-5-32-544"			# Add user to local Administrators group
 	# Hide user from login screen:
 	New-Item 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList' -Force | New-ItemProperty -Name $agent_user -Value 0 -PropertyType DWord -Force
