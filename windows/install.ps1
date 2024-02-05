@@ -1,5 +1,18 @@
 #Requires -RunAsAdministrator
 
+#!/usr/bin/env bash
+#===================================================================================
+# LABADMIN SCRIPT SERVER AGENT INSTALL FOR WINDOWS
+#         FILE: install.ps1
+#  DESCRIPTION: Labadmin script server client agent install for Windows hosts
+#
+#       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
+#	   LICENSE: GNU General Public License v3.0
+#      VERSION: 2024.02
+#      CREATED: 28.06.2022
+#=================================================================================== 
+
+
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
@@ -12,7 +25,7 @@ $agent_user="labadmin"
 #===============================================================================
 #  CHECK CREDENTIALS
 #===============================================================================
-# Run as admin
+# Run as admin (#Requires not found when load install from URL)
 if(!((New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
 	Write-Error "Must exec as Administrator"
 	exit 1
