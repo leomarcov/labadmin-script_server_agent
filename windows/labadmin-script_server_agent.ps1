@@ -165,9 +165,10 @@ ForEach ($script in $($script_list -split "`r`n"))
 	# SEND EXIT STATUS AND LOG
     if($?) {
         log "exec_ok" $script
+		Remove-Item -Force -Path $script_log
         call_script_server "exec_ok" $script *>$null
     } else {
-		Write-Output "Error executing script code $script"
+		Write-Output "Error executing script $script"
 		log "exec_error" $script $exec_msg
 		call_script_server "exec_error" $script $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Length, 50))+" ..." *>$null
     }
