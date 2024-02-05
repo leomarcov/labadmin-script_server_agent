@@ -40,13 +40,14 @@ if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 Write-Host "`nCreating files on $agent_path and $agent_data ..." -ForegroundColor Green
 if (-not (Test-Path $agent_path)) {	New-Item -ItemType Directory -Path $agent_path } 
 if(!(Test-Path $agent_data)) {
-	New-Item -ItemType Directory -Force -Path $agent_data | Out-Null   
+	New-Item -ItemType Directory -Force -Path $agent_data 
 	$acl = Get-Acl $agent_data
 	$acl.SetAccessRuleProtection($true, $false)
 	$adminsgrp_name=(New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544').Translate([type]'System.Security.Principal.NTAccount').value
 	$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($adminsgrp_name)))
 	$acl.SetAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($adminsgrp_name,"FullControl", 3, 0, "Allow")))
 	Set-Acl -Path $agent_data -AclObject $acl
+ 	if(!(Test-Path $agent_data)) { New-Item -ItemType Directory -Force -Path "${agent_data}\scripts" }
 }
 
 $url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows"
