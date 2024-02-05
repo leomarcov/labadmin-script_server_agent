@@ -36,16 +36,24 @@ Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContin
 #  REMOVE FILES
 #===============================================================================
 Write-Host "`nRemoving files on $agent_path and $agent_data ..." -ForegroundColor Green
+echo aaa
 $pk_file=$agent_data+"\id_labadmin-agent_win.pk"
+echo bbb
 $acl=Get-Acl $pk_file
+echo ccc
 $acl.SetAccessRuleProtection($true, $false)
+echo ddd
 $acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
+echo eee
 $adminsgrp_name=(New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544').Translate([type]'System.Security.Principal.NTAccount').value
+echo fff
 $acl.SetOwner((New-Object System.Security.Principal.Ntaccount($adminsgrp_name)))
+echo ggg
 $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($adminsgrp_name, "FullControl", "Allow")))
+echo hhh
 Set-Acl -Path $pk_file -AclObject $acl
 
-echo aaa
+echo iii
 Remove-Item -Recurse -Force -Path $agent_data
-echo bbb
+echo jjj
 Remove-Item -Recurse -Force -Path $agent_path
