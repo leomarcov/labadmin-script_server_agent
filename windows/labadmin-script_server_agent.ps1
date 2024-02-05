@@ -27,7 +27,7 @@ $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server
 
 #=== FUNCTION ==================================================================
 #        NAME: log
-# DESCRIPTION: write in log file using format: [date time] [STATUS] [ACTION] [SCRIPT] MSG
+# DESCRIPTION: write in log file using format: [DATETIME] [STATUS] [ACTION] [SCRIPT] MSG
 #===============================================================================
 function log {
 	Param(
@@ -39,12 +39,13 @@ function log {
 	  [String]$Message
    )
 
-	$status="["+$status.toUpper()+"] "
-	$action="["+$action.toUpper()+"] "
+	$datetime="["+(Get-Date -Format "MM-dd-yyyy HH:mm:ss")+"] "
+	$status="[${status}] "
+	$action="[$action] "
  	if($script) { $script="[${script}] " }
-    if($message) { $message=$message.Replace("`r`n", " / ") 	}
+    if($message) { $message=$message.Replace("`r`n", " / ") }
 
-	$log_msg="["+(Get-Date -Format "MM-dd-yyyy HH:mm:ss")+"] ${status}${action}${script}${message}"
+	$log_msg="${datetime}${status}${action}${script}${message}"
 	Add-Content -Force -Path $log_path -Value $log_msg
 }
 
@@ -54,8 +55,8 @@ function log {
 # DESCRIPTION: wait until server connection is active or exit if cant connect
 #===============================================================================
 function wait_connection {
-	$n=20	# Number of tries
-	$d=10	# Delay in seconds in each time
+	$n=20		# Number of tries
+	$d=10		# Delay in seconds in each time
 
 	for(; $n -gt 0; $n--) {
 		if((Test-Connection $sshaddress -Count 1 -ErrorAction SilentlyContinue)) { return }
