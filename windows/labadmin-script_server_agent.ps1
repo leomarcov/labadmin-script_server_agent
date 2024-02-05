@@ -151,7 +151,7 @@ ForEach ($script in $($script_list -split "`r`n"))
     $script_code=$call_output.Output -join "`n"
     
 	# SAVE SCRIPT
- 	$script_path="${scripts_path}\"+(Get-Date -Format "yyyMMdd-HHmmss")+"_${script}"
+ 	$script_path="${scripts_path}\["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"] ${script}"
   	$script_log="${script_path}.log"
     $script_path="${script_path}.ps1"
 	Write-Output "Saving script $script in $script_path"
