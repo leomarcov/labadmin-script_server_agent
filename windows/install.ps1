@@ -26,7 +26,7 @@ $agent_user_cred = Get-Credential -Credential $agent_user -ErrorAction Stop
 #  CREATE LOCAL USER FOR SCRIPT EXECUTION
 #===============================================================================
 if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
-	Write-Host "`nCreating local user $agent_path and $agent_data ..." -ForegroundColor Green
+	Write-Host "`nCreating local user $agent_user" -ForegroundColor Green
 	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Password $agent_user_cred.Password
 	Add-LocalGroupMember -Member $agent_user -SID "S-1-5-32-544"			# Add user to local Administrators group
 	# Hide user from login screen:
@@ -37,7 +37,7 @@ if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 #===============================================================================
 #  INSTALL FILES
 #===============================================================================
-Write-Host "`nCreating files on $agent_path ..." -ForegroundColor Green
+Write-Host "`nCreating files on $agent_path and $agent_data ..." -ForegroundColor Green
 if (-not (Test-Path $agent_path)) {	New-Item -ItemType Directory -Path $agent_path } 
 if(!(Test-Path $agent_data)) {
 	New-Item -ItemType Directory -Force -Path $agent_data | Out-Null   
