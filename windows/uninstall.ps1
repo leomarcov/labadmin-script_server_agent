@@ -26,17 +26,24 @@ if ((Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList" -Name "$agent_user" -Force
 }
 
-
 #===============================================================================
 #  REMOVE SCHEDULE JOB
 #===============================================================================
 Write-Host "`nRemoving scheduled job..." -ForegroundColor Green
 Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContinue
 
-
 #===============================================================================
 #  REMOVE FILES
 #===============================================================================
-Write-Host "`nRemoving files on $agent_path and $agent_data ... -ForegroundColor Green
+Write-Host "`nRemoving files on $agent_path and $agent_data ..." -ForegroundColor Green
+$pk_file=$agent_data+"\id_labadmin-agent_win.pk"
+$acl=Get-Acl $pk_file
+$acl.SetAccessRuleProtection($true, $false)
+$acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
+$adminsgrp_name=(New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544').Translate([type]'System.Security.Principal.NTAccount').value
+$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($adminsgrp_name)))
+$acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($adminsgrp_name, "FullControl", "Allow")))
+Set-Acl -Path $pk_file -AclObject $acl
+
 Remove-Item -Recurse -Force -Path $agent_data
 Remove-Item -Recurse -Force -Path $agent_path
