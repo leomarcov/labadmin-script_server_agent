@@ -92,7 +92,7 @@ function call_script_server {
 	$exec_msg=$args[2]
 	
 	$cmd="bash $sshcmd -h $hostname -r $repository -a $action"
-	if($actionl) { $cmd="$cmd -a `"$action`"" }
+	if($action) { $cmd="$cmd -a `"$action`"" }
 	if($script) { $cmd="$cmd -s `"$script`"" }
 	if($exec_msg) { $cmd="$cmd -m `"$exec_msg`"" }
 
@@ -160,12 +160,10 @@ ForEach ($script in $($script_list -split "`r`n"))
 	
  	# EXEC SCRIPT 
     Write-Output "Executing  script: $script"
-    $exec_output=(Invoke-Expression -Command $script_code) 2>&1
-    $exec_code=$exec_output[-1]
-    $exec_msg=($exec_output[0..($exec_output.Length-2)] | Out-String).Trim()
-	$exec_msg
-	echo "EXIT CODE: $exec_code"
-    if($exec_code) {
+	& $script_path 2>&1 | Tee-Object $script_log				# Exec saved script and redirect log to script log file
+
+	# SEND EXIT STATUS AND LOG
+    if($?) {
         log "exec_ok" $script
         call_script_server "exec_ok" $script *>$null
     } else {
