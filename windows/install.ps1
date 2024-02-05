@@ -47,7 +47,7 @@ if(!(Test-Path $agent_data)) {
 	$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($adminsgrp_name)))
 	$acl.SetAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($adminsgrp_name,"FullControl", 3, 0, "Allow")))
 	Set-Acl -Path $agent_data -AclObject $acl
- 	if(!(Test-Path $agent_data)) { New-Item -ItemType Directory -Force -Path "${agent_data}\scripts" }
+ 	if(!(Test-Path "${agent_data}\scripts")) { New-Item -ItemType Directory -Force -Path "${agent_data}\scripts" }
 }
 
 $url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows"
