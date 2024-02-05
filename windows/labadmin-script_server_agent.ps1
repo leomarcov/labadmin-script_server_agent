@@ -65,17 +65,10 @@ function wait_connection {
 	}
 	
 	Write-Host -e "\e[1m\e[31mTimeout waiting for connection\e[0m"
+ 	log -Status "ERR" -Action -"ETH " 
 	exit 1
 }
 
-
-#=== FUNCTION ==================================================================
-#        NAME: check_admin_privileges
-# DESCRIPTION: check if current user has administrator privileges
-#===============================================================================
-function check_admin_privileges {
-	return (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
 
 
 #=== FUNCTION ==================================================================
@@ -102,16 +95,11 @@ function call_script_server {
 
 
 #### INITIALIZATION
-# Check admin
-if(!(check_admin_privileges)) {
-	Write-Error "Must exec as Administrator"
-	exit 1
-}
 # Check server connection
 wait_connection		
 # Open SSH session
 $session = New-SSHSession -ComputerName $sshaddress -Port $sshport -Credential (New-Object System.Management.Automation.PSCredential($sshuser, (new-object System.Security.SecureString))) -KeyFile $sshprivatekey_path
-if(!$?) { exit $LASTEXITCODE }
+if(!$?) { log -Status "ERR" -Action "SSH "; exit $LASTEXITCODE }
 
 
 #### GET PENDING SCRIPT LIST
@@ -121,14 +109,14 @@ $call_output=call_script_server -Action "list"
 if($call_output.ExitStatus -ne 0) {
     Write-Error "Error getting pending scripts list: $call_output"
     $call_output.Output
-    log -Status "err" -Action "list" -Message $call_output.Output
+    log -Status "ERR" -Action "LIST" -Message $call_output.Output
     exit 1
 }
 
 $script_list=$call_output.Output
 if(!$script_list) {	Write-Output "0 pending scripts"; exit 0 }
 $script_list
-log -Status "ok " -Action "list" -Message $script_list
+log -Status "OK " -Action "LIST" -Message $script_list
 
 
 #### GET AND EXEC SCRIPTS
@@ -141,7 +129,7 @@ ForEach ($script in $($script_list -split "`r`n"))
 	if($call_output.ExitStatus -ne 0) {
 		Write-Error "Error getting script code $script"
 		$call_output.Output
-		log -Status "err" -Action "get " -Script "$script" -Message $call_output.Output
+		log -Status "ERR" -Action "GET " -Script "$script" -Message $call_output.Output
 		continue
 	}
     $script_code=$call_output.Output -join "`n"
@@ -160,11 +148,11 @@ ForEach ($script in $($script_list -split "`r`n"))
 
 	# SEND EXIT STATUS AND LOG
     if($?) {
-        log -Status "ok " -Action "exec" -Script $script
+        log -Status "OK " -Action "EXEC" -Script $script
         call_script_server -Action "exec_ok" -Script $script *>$null
     } else {
 		Write-Output "Error executing script $script"
-		log -Status "err" -Action "exec" -Script $script -Message $exec_msg
+		log -Status "ERR" -Action "EXEC" -Script $script -Message $exec_msg
 		call_script_server -Action "exec_error" -Script $script -Message $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Length, 50))+" ..." *>$null
     }
 }
