@@ -17,6 +17,7 @@
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
 $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"  # Agent program data path
+$scripts_path="${agent_data}\scripts"										# Downloaded scripts path stored
 $hostname=[Environment]::MachineName									    # Hostname 
 $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server command path in remote server
 
@@ -148,7 +149,15 @@ ForEach ($script in $($script_list -split "`r`n"))
 		continue
 	}
     $script_code=$call_output.Output -join "`n"
-    # EXEC SCRIPT
+    
+	# SAVE SCRIPT
+ 	$script_path="${scripts_path}\"+(Get-Date -Format "yyyMMdd-HHmmss")+"_${script}"
+  	$script_log="${script_path}.log"
+    $script_path="${script_path}.ps1"
+	Write-Output "Saving script $script in $script_path"
+	$script_code | Out-File -FilePath $script_path
+	
+ 	# EXEC SCRIPT 
     Write-Output "Executing  script code for: $script"
     $exec_output=(Invoke-Expression -Command $script_code) 2>&1
     $exec_code=$exec_output[-1]
