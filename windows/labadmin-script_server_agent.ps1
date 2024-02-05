@@ -41,11 +41,11 @@ function log {
 
 	$status="["+$status.toUpper()+"] "
 	$action="["+$action.toUpper()+"] "
- 	if($script) { $script="[{$script}] " }
+ 	if($script) { $script="[${script}] " }
     if($message) { $message=$message.Replace("`r`n", " / ") 	}
 
 	$log_msg="["+(Get-Date -Format "MM-dd-yyyy HH:mm:ss")+"] ${status}${action}${script}${message}"
-	Add-Content -Path $log_path -Value $log_msg
+	Add-Content -Force -Path $log_path -Value $log_msg
 }
 
 
@@ -54,7 +54,7 @@ function log {
 # DESCRIPTION: wait until server connection is active or exit if cant connect
 #===============================================================================
 function wait_connection {
-	$n=10	# Number of tries
+	$n=20	# Number of tries
 	$d=10	# Delay in seconds in each time
 
 	for(; $n -gt 0; $n--) {
@@ -80,10 +80,6 @@ function check_admin_privileges {
 #=== FUNCTION ==================================================================
 #        NAME: call_script_server
 # DESCRIPTION: call ssh labadmin_script-server manager
-# PARAMETERS:
-#	$1 	action
-#	$2 	script
-#	$3 	exec_msg
 #===============================================================================
 function call_script_server {
 	Param(
@@ -98,10 +94,8 @@ function call_script_server {
 	if($script) { $cmd="$cmd -s `"$script`"" }
 	if($message) { $cmd="$cmd -m `"$message`"" }
 
-	return Invoke-SSHCommand -SessionId $session.SessionId -Command "$cmd"
+	Invoke-SSHCommand -SessionId $session.SessionId -Command "$cmd"
 }
-
-
 
 
 
@@ -126,25 +120,20 @@ $call_output=call_script_server -Action "list"
 if($call_output.ExitStatus -ne 0) {
     Write-Error "Error getting pending scripts list: $call_output"
     $call_output.Output
-    log -Status "err" -Action "list" -Message $call_output
+    log -Status "err" -Action "list" -Message $call_output.Output
     exit 1
 }
-$script_list=$call_output.Output
 
-if(!$script_list) {
-	Write-Output "0 pending scripts"
-	exit 0
-}
+$script_list=$call_output.Output
+if(!$script_list) {	Write-Output "0 pending scripts"; exit 0 }
 $script_list
 log -Status "ok " -Action "list" -Message $script_list
-
 
 
 #### GET AND EXEC SCRIPTS
 ForEach ($script in $($script_list -split "`r`n"))
 {
     Write-Output "`n##########################################################################"
-
 	# GET SCRIPT CODE
 	Write-Output "Getting script code for: $script"
 	$call_output=call_script_server -Action "get" -Script "$script"
@@ -157,7 +146,7 @@ ForEach ($script in $($script_list -split "`r`n"))
     $script_code=$call_output.Output -join "`n"
     
 	# SAVE SCRIPT
- 	$script_path="["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"] ${script}"
+ 	$script_path="["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"] "+${script}.split(" ",2)[1]
 	$script_path=$script_path.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'				# Remplace illegal path chars to _
   	$script_log="${scripts_path}\${script_path}.log"
     $script_path="${scripts_path}\${script_path}.ps1"
