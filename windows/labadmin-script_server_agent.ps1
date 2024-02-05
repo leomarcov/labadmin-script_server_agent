@@ -31,23 +31,18 @@ $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server
 #===============================================================================
 function log {
 	Param(
-	  [parameter(Mandatory=$true]
+	  [parameter(Mandatory=$true)]
 	  [String]$Status,
-      [parameter(Mandatory=$true]
+      [parameter(Mandatory=$true)]
 	  [String]$Action,
       [String]$Script,
-	  [String[$Message
+	  [String]$Message
    )
-
-	$status=$args[0]
-	$action=$args[0]
-	$script=$args[1]
-	$exec_msg=$args[2]
 
 	$status="["+$status.toUpper()+"] "
 	$action="["+$action.toUpper()+"] "
- 	if($script) { $script="[{$script}] "
-    
+ 	if($script) { $script="[{$script}] " }
+    if($message) { $message=$message.Replace("`r`n", " / ") 	}
 
 	$log_msg="["+(Get-Date -Format "MM-dd-yyyy HH:mm:ss")+"] ${status}${action}${script}${message}"
 	Add-Content -Path $log_path -Value $log_msg
@@ -91,17 +86,23 @@ function check_admin_privileges {
 #	$3 	exec_msg
 #===============================================================================
 function call_script_server {
-	$action=$args[0]
-	$script=$args[1]
-	$exec_msg=$args[2]
+	Param(
+	  [parameter(Mandatory=$true)]
+	  [String]$Action,
+	  [String]$Script,
+	  [String]$Message
+   )	
 	
 	$cmd="bash $sshcmd -h $hostname -r $repository -a $action"
 	if($action) { $cmd="$cmd -a `"$action`"" }
 	if($script) { $cmd="$cmd -s `"$script`"" }
-	if($exec_msg) { $cmd="$cmd -m `"$exec_msg`"" }
+	if($message) { $cmd="$cmd -m `"$message`"" }
 
 	return Invoke-SSHCommand -SessionId $session.SessionId -Command "$cmd"
 }
+
+
+
 
 
 
@@ -120,22 +121,23 @@ if(!$?) { exit $LASTEXITCODE }
 
 #### GET PENDING SCRIPT LIST
 Write-Output "Getting pending scripts list..."
-$call_output=call_script_server "list" 
+$call_output=call_script_server -Action "list" 
 
 if($call_output.ExitStatus -ne 0) {
     Write-Error "Error getting pending scripts list: $call_output"
     $call_output.Output
-    log -Status "error" -Action "list" -Message $call_output
+    log -Status "err" -Action "list" -Message $call_output
     exit 1
 }
 $script_list=$call_output.Output
-log -Status "ok" -Actin "list" -Message $script_list
 
 if(!$script_list) {
 	Write-Output "0 pending scripts"
 	exit 0
 }
 $script_list
+log -Status "ok " -Action "list" -Message $script_list
+
 
 
 #### GET AND EXEC SCRIPTS
@@ -145,11 +147,11 @@ ForEach ($script in $($script_list -split "`r`n"))
 
 	# GET SCRIPT CODE
 	Write-Output "Getting script code for: $script"
-	$call_output=call_script_server "get" "$script"
+	$call_output=call_script_server -Action "get" -Script "$script"
 	if($call_output.ExitStatus -ne 0) {
 		Write-Error "Error getting script code $script"
 		$call_output.Output
-		log -Status "error" -Action "get" -Script "$script" -Message $call_output.Output
+		log -Status "err" -Action "get " -Script "$script" -Message $call_output.Output
 		continue
 	}
     $script_code=$call_output.Output -join "`n"
@@ -160,20 +162,20 @@ ForEach ($script in $($script_list -split "`r`n"))
   	$script_log="${scripts_path}\${script_path}.log"
     $script_path="${scripts_path}\${script_path}.ps1"
 	Write-Output "Saving script $script in $script_path"
-	$script_code | Out-File -FilePath $script_path
+	$script_code | Out-File -Force -LiteralPath $script_path
 	
  	# EXEC SCRIPT 
     Write-Output "Executing  script: $script"
-	& $script_path 2>&1 | Tee-Object $script_log				# Exec saved script and redirect log to script log file
+	& $script_path 2>&1 | Tee-Object -LiteralPath $script_log				# Exec saved script and redirect log to script log file
 
 	# SEND EXIT STATUS AND LOG
     if($?) {
-        log -Status "ok" -Action "exec" -Script $script
-        call_script_server "exec_ok" $script *>$null
+        log -Status "ok " -Action "exec" -Script $script
+        call_script_server -Action "exec_ok" -Script $script *>$null
     } else {
 		Write-Output "Error executing script $script"
-		log -Status "error" -Action "exec" -Script $script -Message $exec_msg
-		call_script_server "exec_error" $script $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Length, 50))+" ..." *>$null
+		log -Status "err" -Action "exec" -Script $script -Message $exec_msg
+		call_script_server -Action "exec_error" -Script $script -Message $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Length, 50))+" ..." *>$null
     }
 }
 
