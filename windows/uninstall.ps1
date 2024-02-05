@@ -45,5 +45,7 @@ $acl.SetOwner((New-Object System.Security.Principal.Ntaccount($adminsgrp_name)))
 $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($adminsgrp_name, "FullControl", "Allow")))
 Set-Acl -Path $pk_file -AclObject $acl
 
+echo aaa
 Remove-Item -Recurse -Force -Path $agent_data
+echo bbb
 Remove-Item -Recurse -Force -Path $agent_path
