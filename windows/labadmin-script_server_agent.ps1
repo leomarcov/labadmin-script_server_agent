@@ -27,25 +27,29 @@ $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server
 
 #=== FUNCTION ==================================================================
 #        NAME: log
-# DESCRIPTION: write in log file using format: [date time] HOSTNAME ACTION EXEC_MSG
+# DESCRIPTION: write in log file using format: [date time] [STATUS] [ACTION] [SCRIPT] MSG
 #===============================================================================
 function log {
+	Param(
+	  [parameter(Mandatory=$true]
+	  [String]$Status,
+      [parameter(Mandatory=$true]
+	  [String]$Action,
+      [String]$Script,
+	  [String[$Message
+   )
+
+	$status=$args[0]
 	$action=$args[0]
 	$script=$args[1]
 	$exec_msg=$args[2]
 
-	$action="["+$action.toUpper()+"]"
-	$action_width=11; if($action.Length -lt $action_width) { $action=$action.toUpper()+" "*($action_width-$action.Length) }
-	if($script) { $script="[$script]`t" }
+	$status="["+$status.toUpper()+"] "
+	$action="["+$action.toUpper()+"] "
+ 	if($script) { $script="[{$script}] "
+    
 
-	$log_msg="["+(Get-Date -Format "MM-dd-yyyy HH:mm:ss")+"] $action $script"
-	if ($exec_msg) { 
-    $exec_msg=$exec_msg -join "`n"
-    $log_msg=$log_msg+@"
-`n#### EXEC OUTPUT #############################################################
-${exec_msg} 
-##############################################################################
-"@ }
+	$log_msg="["+(Get-Date -Format "MM-dd-yyyy HH:mm:ss")+"] ${status}${action}${script}${message}"
 	Add-Content -Path $log_path -Value $log_msg
 }
 
@@ -121,11 +125,11 @@ $call_output=call_script_server "list"
 if($call_output.ExitStatus -ne 0) {
     Write-Error "Error getting pending scripts list: $call_output"
     $call_output.Output
-    log "list_error" "" $call_output
+    log -Status "error" -Action "list" -Message $call_output
     exit 1
 }
 $script_list=$call_output.Output
-log "list_ok" "" $script_list
+log -Status "ok" -Actin "list" -Message $script_list
 
 if(!$script_list) {
 	Write-Output "0 pending scripts"
@@ -145,7 +149,7 @@ ForEach ($script in $($script_list -split "`r`n"))
 	if($call_output.ExitStatus -ne 0) {
 		Write-Error "Error getting script code $script"
 		$call_output.Output
-		log "get_error" "$script" $call_output.Output
+		log -Status "error" -Action "get" -Script "$script" -Message $call_output.Output
 		continue
 	}
     $script_code=$call_output.Output -join "`n"
@@ -164,12 +168,11 @@ ForEach ($script in $($script_list -split "`r`n"))
 
 	# SEND EXIT STATUS AND LOG
     if($?) {
-        log "exec_ok" $script
-		Remove-Item -Force -Path $script_log
+        log -Status "ok" -Action "exec" -Script $script
         call_script_server "exec_ok" $script *>$null
     } else {
 		Write-Output "Error executing script $script"
-		log "exec_error" $script $exec_msg
+		log -Status "error" -Action "exec" -Script $script -Message $exec_msg
 		call_script_server "exec_error" $script $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Length, 50))+" ..." *>$null
     }
 }
