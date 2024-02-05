@@ -151,14 +151,15 @@ ForEach ($script in $($script_list -split "`r`n"))
     $script_code=$call_output.Output -join "`n"
     
 	# SAVE SCRIPT
- 	$script_path="${scripts_path}\["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"] ${script}"
-  	$script_log="${script_path}.log"
-    $script_path="${script_path}.ps1"
+ 	$script_path="["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"] ${script}"
+	$script_path=$script_path.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'				# Remplace illegal path chars to _
+  	$script_log="${scripts_path}\${script_path}.log"
+    $script_path="${scripts_path}\${script_path}.ps1"
 	Write-Output "Saving script $script in $script_path"
 	$script_code | Out-File -FilePath $script_path
 	
  	# EXEC SCRIPT 
-    Write-Output "Executing  script code for: $script"
+    Write-Output "Executing  script: $script"
     $exec_output=(Invoke-Expression -Command $script_code) 2>&1
     $exec_code=$exec_output[-1]
     $exec_msg=($exec_output[0..($exec_output.Length-2)] | Out-String).Trim()
