@@ -27,25 +27,25 @@ $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server
 
 #=== FUNCTION ==================================================================
 #        NAME: log
-# DESCRIPTION: write line in log file using format: [DATETIME] [STATUS] [ACTION] [SCRIPT] MSG
+# DESCRIPTION: write line in log file using format: [DATETIME] [ACTION] [STATUS] [SCRIPT] MSG
 #===============================================================================
 function log {
 	Param(
-	  [parameter(Mandatory=$true)]
-	  [String]$Status,
       [parameter(Mandatory=$true)]
 	  [String]$Action,
+	  [parameter(Mandatory=$true)]
+	  [String]$Status,
       [String]$Script,
 	  [String]$Message
    )
 
 	$datetime="["+(Get-Date -Format "MM-dd-yyyy HH:mm:ss")+"] "
-	$status="[${status}] "
 	$action="[$action] "
+	$status="[${status}] "
  	if($script) { $script="[${script}] " }
     if($message) { $message=$message.Replace("`r`n", " / ") }
 
-	$log_msg="${datetime}${status}${action}${script}${message}"
+	$log_msg="${datetime}${action}${status}${script}${message}"
 	Add-Content -Force -Path $log_path -Value $log_msg
 }
 
@@ -65,7 +65,7 @@ function wait_connection {
 	}
 	
 	Write-Host -e "\e[1m\e[31mTimeout waiting for connection\e[0m"
- 	log -Status "ERR" -Action -"TIME" -Message "Time out connecting to server"
+ 	log -Action -"TIME" -Status "ERR" -Message "Time out connecting to server"
 	exit 1
 }
 
@@ -99,62 +99,76 @@ function call_script_server {
 wait_connection		
 # Open SSH session
 $session = New-SSHSession -ComputerName $sshaddress -Port $sshport -Credential (New-Object System.Management.Automation.PSCredential($sshuser, (new-object System.Security.SecureString))) -KeyFile $sshprivatekey_path
-if(!$?) { log -Status "ERR" -Action "SSH " -Message "Error connecting to SSH Server"; exit $LASTEXITCODE }
+if(!$?) { log -Action "SSH " -Status "ERR" -Message "Error connecting to SSH Server"; exit $LASTEXITCODE }
 
 
 #### GET PENDING SCRIPT LIST
-Write-Output "Getting pending scripts list..."
+Write-Output "`nGETTING PENDING SCRIPT LISTS..."
 $call_output=call_script_server -Action "list" 
-
+$call_output_str=($call_output.Output | Out-String).Trim()					# Convert to string
 if($call_output.ExitStatus -ne 0) {
-    Write-Error "Error getting pending scripts list: $call_output"
+Write-Error "Error getting pending scripts list: ${call_output}`n"
     $call_output.Output
-    log -Status "ERR" -Action "LIST" -Message $call_output.Output
+    log -Action "LIST" -Status "ERR" -Message $call_output_str
     exit 1
 }
 
-$script_list=$call_output.Output
-if(!$script_list) {	Write-Output "0 pending scripts"; exit 0 }
-log -Status "OK " -Action "LIST" -Message $script_list
+$script_list=$call_output_str
+if(!$script_list) {	Write-Output "0 pending scripts`n"; exit 0 }
+log -Action "LIST" -Status "OK " -Message $script_list.Replace("`r`n", " , ")
+$script_list -Replace '(?m)^(?=.)', '  - '
 
-$script_list
 
+Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
-ForEach ($script in $($script_list -split "`r`n"))
-{
-    Write-Output "`n##########################################################################"
+ForEach ($script in $($script_list -split "`r`n")) {
+    Write-Output "`n┌───────────────────────────────────────────────────────────────────────────┐"
+	Write-Output "   SCRIPT: $script"
+	Write-Output "└───────────────────────────────────────────────────────────────────────────┘"
+	#Write-Output "`n`n`n###########################################################################`n${script}`n###########################################################################"
 	# GET SCRIPT CODE
-	Write-Output "Getting script code for: $script"
+	Write-Output "  * Getting code: $script"
 	$call_output=call_script_server -Action "get" -Script "$script"
+	$call_output_str=($call_output.Output | Out-String).Trim()					# Convert to string
 	if($call_output.ExitStatus -ne 0) {
-		Write-Error "Error getting script code $script"
+		Write-Error "  * Error getting script code $script"
 		$call_output.Output
-		log -Status "ERR" -Action "GET " -Script "$script" -Message $call_output.Output
+		log -Action "GET " -Status "ERR"  -Script "$script" -Message $call_output_str
 		continue
 	}
-    $script_code=$call_output.Output -join "`n"
+    $script_code=$call_output_str
     
 	# SAVE SCRIPT
  	$script_path="["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"] "+${script}.split(" ",2)[1]
 	$script_path=$script_path.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'				# Remplace illegal path chars to _
   	$script_log="${scripts_path}\${script_path}.log"
     $script_path="${scripts_path}\${script_path}.ps1"
-	Write-Output "Saving script $script in $script_path"
+	Write-Output "  * Saving script: $script_path"
 	$script_code | Out-File -Force -LiteralPath $script_path
 	
  	# EXEC SCRIPT 
-    Write-Output "Executing  script: $script"
+    Write-Output "  * Executing: $script"
+    Write-Output "`n+--- OUTPUT -----------------------------------------------------------------+"
 	& $script_path 2>&1 | Tee-Object -LiteralPath $script_log				# Exec saved script and redirect log to script log file
+    $script_exitstatus=$?; $script_exitcode=$LASTEXITCODE
+	Write-Output "`n+----------------------------------------------------------------------------+"
+
 
 	# SEND EXIT STATUS AND LOG
-    if($?) {
-        log -Status "OK " -Action "EXEC" -Script $script
-		call_script_server -Action "exec_ok" -Script $script
+    if($script_exitstatus) {
+		Write-Output "  * Execution termination: OK"
+		Write-Output "  * Saved output: $script_log"
+        log -Action "EXEC" -Status "OK " -Script $script
+		call_script_server -Action "exec_ok" -Script $script | Out-Null
 	} else {
-		Write-Output "Error executing script $script"
-		log -Status "ERR" -Action "EXEC" -Script $script -Message $exec_msg
-		call_script_server -Action "exec_error" -Script $script -Message $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Length, 50))+" ..." *>$null
+		Write-Output "  * Execution termination: ERROR (${script_exitcode})"
+		Write-Output "  * Saved output: $script_log"
+		$script_output=(Get-Content -LiteralPath $script_log -First 10| Out-String).replace("`r`n", " / ")
+		log -Action "EXEC" -Status "ERR" -Script $script -Message $script_output
+		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
     }
+	Write-Output "`n`n"
 }
 
+Write-Output "`n"
