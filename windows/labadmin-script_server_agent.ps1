@@ -27,7 +27,7 @@ $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server
 
 #=== FUNCTION ==================================================================
 #        NAME: log
-# DESCRIPTION: write in log file using format: [DATETIME] [STATUS] [ACTION] [SCRIPT] MSG
+# DESCRIPTION: write line in log file using format: [DATETIME] [STATUS] [ACTION] [SCRIPT] MSG
 #===============================================================================
 function log {
 	Param(
@@ -65,7 +65,7 @@ function wait_connection {
 	}
 	
 	Write-Host -e "\e[1m\e[31mTimeout waiting for connection\e[0m"
- 	log -Status "ERR" -Action -"ETH " 
+ 	log -Status "ERR" -Action -"TIME" -Message "Time out connecting to server"
 	exit 1
 }
 
@@ -78,9 +78,9 @@ function wait_connection {
 function call_script_server {
 	Param(
 	  [parameter(Mandatory=$true)]
-	  [String]$Action,
-	  [String]$Script,
-	  [String]$Message
+	  [String]$action,
+	  [String]$script,
+	  [String]$message
    )	
 	
 	$cmd="bash $sshcmd -h $hostname -r $repository -a $action"
@@ -99,7 +99,7 @@ function call_script_server {
 wait_connection		
 # Open SSH session
 $session = New-SSHSession -ComputerName $sshaddress -Port $sshport -Credential (New-Object System.Management.Automation.PSCredential($sshuser, (new-object System.Security.SecureString))) -KeyFile $sshprivatekey_path
-if(!$?) { log -Status "ERR" -Action "SSH "; exit $LASTEXITCODE }
+if(!$?) { log -Status "ERR" -Action "SSH " -Message "Error connecting to SSH Server"; exit $LASTEXITCODE }
 
 
 #### GET PENDING SCRIPT LIST
@@ -115,8 +115,9 @@ if($call_output.ExitStatus -ne 0) {
 
 $script_list=$call_output.Output
 if(!$script_list) {	Write-Output "0 pending scripts"; exit 0 }
-$script_list
 log -Status "OK " -Action "LIST" -Message $script_list
+
+$script_list
 
 
 #### GET AND EXEC SCRIPTS
@@ -149,8 +150,8 @@ ForEach ($script in $($script_list -split "`r`n"))
 	# SEND EXIT STATUS AND LOG
     if($?) {
         log -Status "OK " -Action "EXEC" -Script $script
-        call_script_server -Action "exec_ok" -Script $script *>$null
-    } else {
+		call_script_server -Action "exec_ok" -Script $script
+	} else {
 		Write-Output "Error executing script $script"
 		log -Status "ERR" -Action "EXEC" -Script $script -Message $exec_msg
 		call_script_server -Action "exec_error" -Script $script -Message $exec_msg.replace("`n", " \ ").substring(0,[Math]::Min($exec_msg.Length, 50))+" ..." *>$null
