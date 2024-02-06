@@ -140,6 +140,7 @@ ForEach ($script in $($script_list -split "`r`n")) {
     $script_code=$call_output_str
     
 	# SAVE SCRIPT
+  	if(!(Test-Path $scripts_path)) { New-Item -ItemType Directory -Force -Path $scripts_path }
  	$script_path="["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"] "+${script}.split(" ",2)[1]
 	$script_path=$script_path.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'				# Remplace illegal path chars to _
   	$script_log="${scripts_path}\${script_path}.log"
