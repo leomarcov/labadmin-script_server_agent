@@ -3,7 +3,7 @@
 #!/usr/bin/env bash
 #===================================================================================
 # LABADMIN SCRIPT SERVER AGENT FOR WINDOWS
-#         FILE: labadmin-script_server_agent.ps1
+#         FILE: lss-agent.ps1
 #  DESCRIPTION: Labadmin script server client agent for Windows hosts
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
