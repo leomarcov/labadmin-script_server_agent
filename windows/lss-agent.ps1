@@ -123,10 +123,10 @@ Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
 ForEach ($script in $($script_list -split "`r`n")) {
-    Write-Output "`n┌──────────────────────────────────────────────────────────────────────────────────────┐"
+    Write-Output "`n________________________________"
 	Write-Output "   SCRIPT: $script"
-	Write-Output "└──────────────────────────────────────────────────────────────────────────────────────┘"
-	#Write-Output "`n`n`n###########################################################################`n${script}`n###########################################################################"
+	Write-Output "___________________________________"
+
 	# GET SCRIPT CODE
 	Write-Output "  * Getting code: $script"
 	$call_output=call_script_server -Action "get" -Script "$script"
