@@ -22,5 +22,5 @@ $sshuser="lss-agent"												# SSH username
 # Local SSH agent key path for ssh authentication
 # CAUTION: after install sample keys are used, pelase consider generate and copy your own keys
 # By default first .pk file in agent install path, feel free to set direct path to your key
-$sshprivatekey_path="${agent_data}\id_labadmin-agent_win.pk"
+$sshprivatekey_path="${agent_data}\id_lss-agent.pk"
 
