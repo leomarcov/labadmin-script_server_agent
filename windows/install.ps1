@@ -51,16 +51,8 @@ if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 #  INSTALL FILES
 #===============================================================================
 Write-Host "`nCreating files on $agent_path and $agent_data ..." -ForegroundColor Green
-if (-not (Test-Path $agent_path)) {	New-Item -ItemType Directory -Path $agent_path } 
-if(!(Test-Path $agent_data)) {
-	New-Item -ItemType Directory -Force -Path $agent_data 
-	$acl = Get-Acl $agent_data
-	$acl.SetAccessRuleProtection($true, $false)
-	$adminsgrp_name=(New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544').Translate([type]'System.Security.Principal.NTAccount').value
-	$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($adminsgrp_name)))
-	$acl.SetAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($adminsgrp_name,"FullControl", 3, 0, "Allow")))
-	Set-Acl -Path $agent_data -AclObject $acl
-}
+if(!(Test-Path $agent_path)) {	New-Item -ItemType Directory -Path $agent_path } 
+if(!(Test-Path $agent_data)) { New-Item -ItemType Directory -Force -Path $agent_data }
 
 $url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows"
 Invoke-WebRequest -Uri ($url+"/lss-agent.ps1") -OutFile ($agent_path+"\lss-agent.ps1")
@@ -70,14 +62,6 @@ Invoke-WebRequest -Uri ($url+"/update.ps1") -OutFile ($agent_path+"\update.ps1")
 if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/config.ps1") -OutFile ($agent_data+"\config.ps1") }
 if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/id_lss-agent.pk") -OutFile ($agent_data+"\id_lss-agent.pk") }
 if (-not (Test-Path ($agent_data+"\log.txt"))) { New-Item -ItemType File -Path ($agent_data+"\log.txt") -Force }
-
-# SET PRIVATE KEYS PERMISSIONS
-$acl=Get-Acl $pk_file
-$acl.SetAccessRuleProtection($true, $false)
-$acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
-$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($agent_user)))
-$acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($agent_user, "FullControl", "Allow")))
-Set-Acl -Path $pk_file -AclObject $acl
 
 
 #===============================================================================
