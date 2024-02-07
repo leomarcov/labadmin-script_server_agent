@@ -20,7 +20,7 @@ $agent_path="${ENV:ProgramFiles}\labadmin\labadmin-script_server_agent"
 $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"
 $agent_file="${agent_path}\lss-agent.ps1"
 $agent_user="labadmin"
-
+$pk_file=$agent_data+"\id_lss-agent.pk"
 
 #===============================================================================
 #  CHECK CREDENTIALS
@@ -72,7 +72,6 @@ if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/
 if (-not (Test-Path ($agent_data+"\log.txt"))) { New-Item -ItemType File -Path ($agent_data+"\log.txt") -Force }
 
 # SET PRIVATE KEYS PERMISSIONS
-$pk_file=$agent_data+"\id_labadmin-agent_win.pk"
 $acl=Get-Acl $pk_file
 $acl.SetAccessRuleProtection($true, $false)
 $acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
