@@ -123,9 +123,8 @@ Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
 ForEach ($script in $($script_list -split "`r`n")) {
-    Write-Output "`n_____________________________________________________________________________________________________________________"
-	Write-Output "   SCRIPT: $script"
-	Write-Output "____________________________________________________________________________________________________________________"
+    Write-Output "`n_______________________________________________________________________________________________________________"
+	Write-Output "SCRIPT: $script"
 
 	# GET SCRIPT CODE
 	Write-Output "  * Getting code: $script"
@@ -169,7 +168,7 @@ ForEach ($script in $($script_list -split "`r`n")) {
 		log -Action "EXEC" -Status "ERR" -Script $script -Message $script_output
 		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
     }
-	Write-Output "`n`n"
+	Write-Output "_______________________________________________________________________________________________________________`n"
 }
 
 Write-Output "`n"
