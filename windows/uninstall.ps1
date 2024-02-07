@@ -5,7 +5,7 @@
 #===============================================================================
 $agent_path="${ENV:ProgramFiles}\labadmin\labadmin-script_server_agent"
 $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"
-$agent_file="${agent_path}\labadmin-script_server_agent.ps1"
+$agent_file="${agent_path}\lss-agent.ps1"
 $agent_user="labadmin"
 
 #===============================================================================
@@ -36,7 +36,7 @@ Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContin
 #  REMOVE FILES
 #===============================================================================
 Write-Host "`nRemoving files on $agent_path and $agent_data ..." -ForegroundColor Green
-$pk_file=$agent_data+"\id_labadmin-agent_win.pk"
+$pk_file=$agent_data+"\id_lss-agent.pk"
 $acl=Get-Acl $pk_file
 $acl.SetAccessRuleProtection($true, $false)
 $acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
