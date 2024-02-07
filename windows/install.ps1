@@ -20,7 +20,7 @@ $agent_path="${ENV:ProgramFiles}\labadmin\labadmin-script_server_agent"
 $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"
 $agent_file="${agent_path}\lss-agent.ps1"
 $agent_user="labadmin"
-$pk_file=$agent_data+"\id_lss-agent.pk"
+$pk_file="${agent_data}\id_lss-agent.pk"
 
 #===============================================================================
 #  CHECK CREDENTIALS
