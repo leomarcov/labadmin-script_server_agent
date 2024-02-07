@@ -123,9 +123,9 @@ Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
 ForEach ($script in $($script_list -split "`r`n")) {
-    Write-Output "`n________________________________"
+    Write-Output "`n________________________________________________________"
 	Write-Output "   SCRIPT: $script"
-	Write-Output "___________________________________"
+	Write-Output "__________________________________________________________"
 
 	# GET SCRIPT CODE
 	Write-Output "  * Getting code: $script"
