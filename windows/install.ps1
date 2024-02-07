@@ -20,7 +20,6 @@ $agent_path="${ENV:ProgramFiles}\labadmin\labadmin-script_server_agent"
 $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"
 $agent_file="${agent_path}\lss-agent.ps1"
 $agent_user="labadmin"
-$pk_file="${agent_data}\id_lss-agent.pk"
 
 #===============================================================================
 #  CHECK CREDENTIALS
@@ -63,6 +62,15 @@ if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/
 if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/id_lss-agent.pk") -OutFile ($agent_data+"\id_lss-agent.pk") }
 if (-not (Test-Path ($agent_data+"\log.txt"))) { New-Item -ItemType File -Path ($agent_data+"\log.txt") -Force }
 
+# Set key permissions
+$pk_file="${agent_data}\id_lss-agent.pk"
+$acl=Get-Acl $pk_file
+$acl.SetAccessRuleProtection($true, $false)
+$acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) }
+$adminsgrp_name=(New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544').Translate([type]'System.Security.Principal.NTAccount').value
+$acl.SetOwner((New-Object System.Security.Principal.Ntaccount($adminsgrp_name)))
+$acl.SetAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($adminsgrp_name,"FullControl", "Allow")))
+Set-Acl -Path $pk_file -AclObject $acl
 
 #===============================================================================
 #  INSTALL POSH-SSH
