@@ -78,7 +78,8 @@ Set-Acl -Path $pk_file -AclObject $acl
 if(!(Get-Module Posh-SSH)) { 
 	Write-Host "`nInstalling Posh-SSH module..." -ForegroundColor Green
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12		# ENABLE TLS 1.2
-	Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
+	#Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
+	Install-Module -Name Posh-SSH -Force
 	# Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno 
 	# Test connection: New-SSHSession -ComputerName 10.0.2.15 -Port 58889 -AcceptKey -Credential alumno -KeyFile 'c:\windows\...'
 }
