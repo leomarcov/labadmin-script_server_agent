@@ -115,7 +115,7 @@ Write-Error "Error getting pending scripts list: ${call_output}`n"
 
 $script_list=$call_output_str
 if(!$script_list) {	Write-Output "0 pending scripts`n"; exit 0 }
-log -Action "LIST" -Status "OK " -Message $script_list.Replace("`r`n", " , ")
+log -Action "LIST" -Status "OK " -Message $script_list.Replace("`r`n", " // ")
 $script_list -Replace '(?m)^(?=.)', '  - '
 
 
