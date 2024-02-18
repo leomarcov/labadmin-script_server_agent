@@ -30,7 +30,7 @@ if ((Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 #  REMOVE SCHEDULE JOB
 #===============================================================================
 Write-Host "`nRemoving scheduled job..." -ForegroundColor Green
-Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContinue
+Start-Process powershell -ArgumentList "-File `"${agent_path}\lss-config-schedule.ps1`" -unregister"
 
 #===============================================================================
 #  REMOVE FILES
