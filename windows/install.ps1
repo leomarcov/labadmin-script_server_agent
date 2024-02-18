@@ -29,25 +29,27 @@ if(!((New-Object Security.Principal.WindowsPrincipal([Security.Principal.Windows
 	Write-Error "Must exec as Administrator"
 	exit 1
 }
-# Get agent_user credentials
-Write-Host "`nInsert $agent_user user credentials..." -ForegroundColor Green
-$agent_user_cred = Get-Credential -Credential $agent_user -ErrorAction Stop
-
 
 #===============================================================================
 #  CREATE LOCAL USER FOR SCRIPT EXECUTION
 #===============================================================================
+# Get agent_user credentials
+Write-Host "`nInsert $agent_user user credentials..." -ForegroundColor Green
+while(!$agent_user_cred -OR $agent_user_cred.Username -ne $agent_user) { $agent_user_cred = Get-Credential -Credential $agent_user }
+
 if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	Write-Host "`nCreating local user $agent_user" -ForegroundColor Green
 	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -AccountNeverExpires -Password $agent_user_cred.Password
 	Add-LocalGroupMember -Member $agent_user -SID "S-1-5-32-544"			# Add user to local Administrators group
 	# Hide user from login screen:
 	New-Item 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList' -Force | New-ItemProperty -Name $agent_user -Value 0 -PropertyType DWord -Force
+} else {
+	Set-LocalUser -Name $agent_user -Password $agent_user_cred.Password
 }
-
 
 #===============================================================================
 #  INSTALL FILES
+
 #===============================================================================
 Write-Host "`nCreating files on $agent_path and $agent_data ..." -ForegroundColor Green
 if(!(Test-Path $agent_path)) {	New-Item -ItemType Directory -Path $agent_path } 
@@ -55,6 +57,7 @@ if(!(Test-Path $agent_data)) { New-Item -ItemType Directory -Force -Path $agent_
 
 $url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows"
 Invoke-WebRequest -Uri ($url+"/lss-agent.ps1") -OutFile ($agent_path+"\lss-agent.ps1")
+Invoke-WebRequest -Uri ($url+"/lss-config-schedule.ps1") -OutFile ($agent_path+"\lss-config-schedule.ps1")
 Invoke-WebRequest -Uri ($url+"/install.ps1") -OutFile ($agent_path+"\install.ps1")
 Invoke-WebRequest -Uri ($url+"/uninstall.ps1") -OutFile ($agent_path+"\uninstall.ps1")
 Invoke-WebRequest -Uri ($url+"/update.ps1") -OutFile ($agent_path+"\update.ps1")
@@ -88,10 +91,8 @@ if(!(Get-Module Posh-SSH)) {
 #  CREATE SCHEDULE JOB
 #===============================================================================
 Write-Host "`nCrearing scheduled job..." -ForegroundColor Green
-Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContinue
-$job_opt = New-ScheduledJobOption -RunElevated -RequireNetwork
-Register-ScheduledJob -Credential $agent_user_cred -Name labadmin-script_server-agent -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -ScheduledJobOption $job_opt
-# List jobs: get-job
-# Show job messages: (get-job)[-1].error
-# Show job messages: (get-job)[-1].output
+Start-Process powershell -Credential $agent_user_cred -ArgumentList "-File `"${agent_path}\lss-config-schedule.ps1`" -register"
+
+
+
 
