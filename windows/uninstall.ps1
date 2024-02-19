@@ -18,6 +18,12 @@ if(!((New-Object Security.Principal.WindowsPrincipal([Security.Principal.Windows
 }
 
 #===============================================================================
+#  REMOVE SCHEDULE JOB
+#===============================================================================
+Write-Host "`nRemoving scheduled job..." -ForegroundColor Green
+Start-Process powershell -ArgumentList "-File `"${agent_path}\lss-config-schedule.ps1`" -unregister"
+
+#===============================================================================
 #  DELETE LOCAL USER 
 #===============================================================================
 if ((Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
@@ -26,11 +32,6 @@ if ((Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList" -Name "$agent_user" -Force
 }
 
-#===============================================================================
-#  REMOVE SCHEDULE JOB
-#===============================================================================
-Write-Host "`nRemoving scheduled job..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-File `"${agent_path}\lss-config-schedule.ps1`" -unregister"
 
 #===============================================================================
 #  REMOVE FILES
