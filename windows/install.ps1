@@ -93,9 +93,7 @@ if(!(Get-Module Posh-SSH)) {
 Write-Host "`nCrearing scheduled job..." -ForegroundColor Green
 Start-Process powershell -Wait -Credential $agent_user_cred -ArgumentList "-File `"${agent_path}\lss-config-schedule.ps1`" -register"
 
-#===============================================================================
-#  EXEC FIRST TIME TO SAVE PUBLIC KEY SERVER
-#===============================================================================
-Write-Host "`nFirst time call lss-agent with ${agent_user} to save key..." -ForegroundColor Green
-Start-Process powershell -Wait -Credential $agent_user_cred -ArgumentList "-File `"${agent_file}`""
+
+
+
 
