@@ -28,7 +28,10 @@ Start-Process powershell -ArgumentList "-File `"${agent_path}\lss-config-schedul
 #===============================================================================
 if ((Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	Write-Host "`nDeleting local user $agent_path ..." -ForegroundColor Green
-	Remove-LocalUser -Name $agent_user
+	$localuser = Get-LocalUser -Name $agent_user
+	$localuser | Remove-LocalUser
+	$userprofile = Get-CimInstance -Class Win32_UserProfile | Where-Object { $_.SID -eq $localuser.SID }
+	$userprofile | Remove-CimInstance
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList" -Name "$agent_user" -Force
 }
 
