@@ -44,7 +44,7 @@ if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	# Hide user from login screen:
 	New-Item 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList' -Force | New-ItemProperty -Name $agent_user -Value 0 -PropertyType DWord -Force
 } else {
-	Set-LocalUser -Name $agent_user -Password $agent_user_cred.Password
+	Set-LocalUser -Name $agent_user -Password $agent_user_cred.Password PasswordNeverExpires:$true
 }
 
 #===============================================================================
