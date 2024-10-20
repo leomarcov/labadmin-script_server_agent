@@ -118,7 +118,6 @@ function main() {
 	# INIT
 	initialize
 
-
 	# GET PENDING SCRIPT LIST
 	echo -e "\e[1mGetting pending scripts list...\e[0m"
 	call_output=$(call_script_server "list")
