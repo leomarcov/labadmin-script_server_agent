@@ -56,7 +56,7 @@ function log {
 #===============================================================================
 function wait_connection {
 	$n=20		# Number of tries
-	$d=10		# Delay in seconds in each time
+	$d=15		# Delay in seconds in each time
 
 	for(; $n -gt 0; $n--) {
 		if((Test-Connection $sshaddress -Count 1 -ErrorAction SilentlyContinue)) { return }
