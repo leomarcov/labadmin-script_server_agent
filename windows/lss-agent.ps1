@@ -123,10 +123,7 @@ $script_list -Replace '(?m)^(?=.)', '  - '
 Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
-ForEach ($script in $($script_list -split "`r`n")) {
-	# Check if save script.ps1 and script.log files on $scripts_path
- 	$nosave_script = $script -match '$script -match '\[NOSAVE\]''
-    
+ForEach ($script in $($script_list -split "`r`n")) {   
 	Write-Output "`n_______________________________________________________________________________________________________________"
 	Write-Output "SCRIPT: $script"
 
@@ -174,6 +171,8 @@ ForEach ($script in $($script_list -split "`r`n")) {
     }
 
  	# REMOVE SCRIPT AND LOG
+  	# Check if no save script.ps1 and script.log files on $scripts_path
+ 	$nosave_script = $script -match '$script -match '\[NOSAVE\]''
   	if($nosave_script) {
    		Remove-Item -Force -LiteralPath $script_path
 		Remove-Item -Force -LiteralPath $script_log
