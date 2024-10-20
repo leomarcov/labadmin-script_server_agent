@@ -124,7 +124,10 @@ Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
 ForEach ($script in $($script_list -split "`r`n")) {
-    Write-Output "`n_______________________________________________________________________________________________________________"
+	# Check if save script.ps1 and script.log files on $scripts_path
+ 	$nosave_script = $script -match '$script -match '\[NOSAVE\]''
+    
+	Write-Output "`n_______________________________________________________________________________________________________________"
 	Write-Output "SCRIPT: $script"
 
 	# GET SCRIPT CODE
@@ -169,6 +172,12 @@ ForEach ($script in $($script_list -split "`r`n")) {
 		log -Action "EXEC" -Status "ERR" -Script $script -Message $script_output
 		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
     }
+
+ 	# REMOVE SCRIPT AND LOG
+  	if($nosave_script) {
+   		Remove-Item -Force -LiteralPath $script_path
+		Remove-Item -Force -LiteralPath $script_log
+  	}
 	Write-Output "_______________________________________________________________________________________________________________`n"
 }
 
