@@ -56,7 +56,7 @@ function log {
 #===============================================================================
 function wait_connection {
 	$n=20		# Number of tries
-	$d=15		# Delay in seconds in each time
+	$d=10		# Delay in seconds in each time
 
 	for(; $n -gt 0; $n--) {
 		if((Test-Connection $sshaddress -Count 1 -ErrorAction SilentlyContinue)) { return }
@@ -83,7 +83,7 @@ function call_script_server {
 	  [String]$message
    )	
 	
-	$cmd="bash $sshcmd -h $hostname -M $mac -r $repository -a $action"
+	$cmd="bash $sshcmd -h $hostname -r $repository -a $action"
 	if($action) { $cmd="$cmd -a `"$action`"" }
 	if($script) { $cmd="$cmd -s `"$script`"" }
 	if($message) { $cmd="$cmd -m `"$message`"" }
@@ -100,8 +100,7 @@ wait_connection
 # Open SSH session
 $session = New-SSHSession -ComputerName $sshaddress -Port $sshport -Credential (New-Object System.Management.Automation.PSCredential($sshuser, (new-object System.Security.SecureString))) -KeyFile $sshprivatekey_path
 if(!$?) { log -Action "SSH " -Status "ERR" -Message "Error connecting to SSH Server"; exit $LASTEXITCODE }
-# Get default MAC address
-$mac = (Get-NetAdapter | Where-Object { $_.ifIndex -eq (Find-NetRoute -RemoteIPAddress 8.8.8.8)[1].ifIndex }).MacAddress
+
 
 #### GET PENDING SCRIPT LIST
 Write-Output "`nGETTING PENDING SCRIPT LISTS..."
@@ -123,8 +122,8 @@ $script_list -Replace '(?m)^(?=.)', '  - '
 Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
-ForEach ($script in $($script_list -split "`r`n")) {   
-	Write-Output "`n_______________________________________________________________________________________________________________"
+ForEach ($script in $($script_list -split "`r`n")) {
+    Write-Output "`n_______________________________________________________________________________________________________________"
 	Write-Output "SCRIPT: $script"
 
 	# GET SCRIPT CODE
@@ -169,14 +168,6 @@ ForEach ($script in $($script_list -split "`r`n")) {
 		log -Action "EXEC" -Status "ERR" -Script $script -Message $script_output
 		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
     }
-
- 	# REMOVE SCRIPT AND LOG
-  	# Check if no save script.ps1 and script.log files on $scripts_path
- 	$nosave_script = $script -match '$script -match '\[NOSAVE\]''
-  	if($nosave_script) {
-   		Remove-Item -Force -LiteralPath $script_path
-		Remove-Item -Force -LiteralPath $script_log
-  	}
 	Write-Output "_______________________________________________________________________________________________________________`n"
 }
 
