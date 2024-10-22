@@ -172,7 +172,7 @@ ForEach ($script in $($script_list -split "`r`n")) {
 
  	# REMOVE SCRIPT AND LOG
   	# Check if no save script.ps1 and script.log files on $scripts_path
-  	if($script -match $script -match '\[NOSAVE\]') {
+  	if($script -match '\[NOSAVE\]') {
    		Remove-Item -Force -LiteralPath $script_path
 		Remove-Item -Force -LiteralPath $script_log
   	}
