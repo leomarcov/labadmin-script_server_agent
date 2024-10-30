@@ -39,7 +39,7 @@ function log {
 	  [String]$Message
    )
 
-	$datetime="["+(Get-Date -Format "MM-dd-yyyy HH:mm:ss")+"] "
+	$datetime="["+(Get-Date -Format "yyyy-MM-dd HH:mm:ss")+"] "
 	$action="[$action] "
 	$status="[${status}] "
  	if($script) { $script="[${script}] " }
