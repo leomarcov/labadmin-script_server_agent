@@ -53,7 +53,7 @@ After=network.target
  
 [Service]
 Type=simple
-ExecStart=bash '"$install_dest/lss-agent"'
+ExecStart=bash '"$install_dest/linux/lss-agent"'
 Restart=on-failure
 StandardOutput=journal
 StandardError=jorunal
