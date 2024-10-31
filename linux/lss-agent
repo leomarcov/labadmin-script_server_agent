@@ -6,8 +6,8 @@
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
 #	   LICENSE: GNU General Public License v3.0
-#      VERSION: 2022.06
-#      CREATED: 28.06.2022
+#      VERSION: 2024.10
+#      CREATED: 2022.06.28
 #=================================================================================== 
 
 
@@ -25,7 +25,7 @@ source "${agent_path}/config"
 
 #=== FUNCTION ==================================================================
 #        NAME: log
-# DESCRIPTION: write in log file using format: [date time] HOSTNAME ACTION EXEC_MSG
+# DESCRIPTION: write in log file using format: [DATETIME] [ACTION]  EXEC_MSG
 #===============================================================================
 function log() {
 	local action="$1"
@@ -38,9 +38,9 @@ function log() {
 
 	log_msg="[$(date "+%Y-%m-%d %H:%M:%S")] ${action} ${script}"
 	[ "$exec_msg" ] && log_msg="${log_msg}
-#### EXEC OUTPUT #############################################################
+┌─── EXEC OUTPUT ───────────────────────────────────────────────────────────────────┐
 $(echo "${exec_msg}" | sed -e 's/^/ /')
-##############################################################################
+└───────────────────────────────────────────────────────────────────────────────────┘
 "
 	echo -e "${log_msg}" >> "$log_path"
 }
@@ -106,6 +106,10 @@ function initialize() {
 
 	# GET DEFAULT MAC ADDRESS
 	mac=$(ip -c=never addr show dev $(ip -c=never -o -4 route get "8.8.8.8" | egrep -o "dev ([[:alnum:]])*" | awk '{print $2}') | grep link/ether | awk '{print $2}')
+	if [ $? -ne 0 ] || [ "${mac#[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]}" ]; then
+		echo -e "\e[1m\e[31mError getting local MAC address $MAC\e[0m"
+		exit 1		
+	fi
 }
 
 
