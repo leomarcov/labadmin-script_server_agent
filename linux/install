@@ -43,7 +43,7 @@ chmod 600 "${install_dest}"/*.pk
 chown -R root:root "$install_dest"
 
 # CREATING SERVICE
-echo -e "\e[1mCreating systemd service: /etc/systemd/system/lss-agent.service\e[0m"
+echo -e "\e[1mCreating systemd service lss-agent(/etc/systemd/system/lss-agent.service)\e[0m"
 echo '[Unit]
 Description=Labadmin Script Server Agent
 After=network.target
