@@ -34,15 +34,18 @@ function check_root() {
 check_root
 
 # COPY REPOSITORY
+echo
 echo -e "\e[1mCloning repository to "$install_dest"\e[0m"
 git clone "https://github.com/leomarcov/labadmin-script_server_agent" /opt/lss-agent/ || exit 1
 
 # SET PERMISSIONS
+echo -e "\e[1mSetting permissions"\e[0m"
 chmod -R 750 "$install_dest"
 chmod 600 "${install_dest}"/*.pk
 chown -R root:root "$install_dest"
 
 # CREATING SERVICE
+echo
 echo -e "\e[1mCreating systemd service lss-agent(/etc/systemd/system/lss-agent.service)\e[0m"
 echo '[Unit]
 Description=Labadmin Script Server Agent
