@@ -39,7 +39,7 @@ echo -e "\e[1mCloning repository to "$repo_dest"\e[0m"
 git clone "https://github.com/leomarcov/labadmin-script_server_agent" "$repo_dest" || exit 1
 
 # SET PERMISSIONS
-echo -e "\e[1mSetting permissions"\e[0m"
+echo -e "\e[1mSetting permissions\e[0m"
 chmod -R 750 "$repo_dest"
 chmod 600 "${install_dest}"/*.pk
 chown -R root:root "$repo_dest"
