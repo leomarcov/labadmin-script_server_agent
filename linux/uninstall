@@ -1,0 +1,44 @@
+#!/bin/bash
+#===================================================================================
+# LABADMIN SCRIPT SERVER AGENT INSTALL
+#         FILE: uninstall
+#  DESCRIPTION: Labadmin script server client agent uninstall script
+#
+#       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
+#      LICENSE: GNU General Public License v3.0
+#      VERSION: 2024.10
+#      CREATED: 2024.10.31
+#=================================================================================== 
+
+#===============================================================================
+#  GLOBAL VARIABLES
+#===============================================================================
+readonly install_dest="/opt/lss-agent/"				# Destination install directory
+
+
+#=== FUNCTION ==================================================================
+#        NAME: check_root
+# DESCRIPTION: check if script is exectued as root
+#===============================================================================
+function check_root() {
+	[ "$UID" -eq 0 ] && return 0
+	echo -e "\e[1m\e[31mMust be exec with administrative privileges\e[0m"
+	exit 1
+}
+
+#===============================================================================
+#  AGENT UNINSTALL
+#===============================================================================
+# CHECK PRIVILEGES
+check_root
+
+# REMOVE REPOSITORY
+echo -e "\e[1mRemoving repository to "$install_dest"\e[0m"
+rm -rf "$install_dest"
+
+# REMOVE SERVICE
+systemctl disable lss-agent.service
+systemctl stop lss-agent.service
+systemctl daemon-reload
+rm /etc/systemd/system/lss-agent.service
+
