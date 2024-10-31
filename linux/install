@@ -6,8 +6,8 @@
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
 #      LICENSE: GNU General Public License v3.0
-#      VERSION: 2022.06
-#      CREATED: 28.06.2022
+#      VERSION: 2024.10
+#      CREATED: 2024.10.31
 #=================================================================================== 
 
 #===============================================================================
@@ -51,28 +51,28 @@ chmod 600 "${install_dest}"/*.pk
 chown -R root:root "$install_dest"
 
 # CREATING SERVICE
-echo -e "\e[1mCreating systemd service: /etc/systemd/system/labadmin-script_server_agent.service\e[0m"
+echo -e "\e[1mCreating systemd service: /etc/systemd/system/lss-agent.service\e[0m"
 echo '[Unit]
 Description=Labadmin Script Server Agent
 After=network.target
  
 [Service]
 Type=simple
-ExecStart=bash '"$install_dest/labadmin-script_server_agent"'
+ExecStart=bash '"$install_dest/lss-agent"'
 Restart=on-failure
 StandardOutput=journal
 StandardError=jorunal
  
 [Install]
-WantedBy=multi-user.target' > /etc/systemd/system/labadmin-script_server_agent.service
-cat /etc/systemd/system/labadmin-script_server_agent.service
+WantedBy=multi-user.target' > /etc/systemd/system/lss-agent.service
+cat /etc/systemd/system/lss-agent.service
 
 echo
 echo -e "\e[1mEnabling service\e[0m"
 systemctl daemon-reload
-systemctl enable labadmin-script_server_agent.service
-systemctl start labadmin-script_server_agent.service
-systemctl status labadmin-script_server_agent.service
+systemctl enable lss-agent.service
+systemctl start lss-agent.service
+systemctl status lss-agent.service
 
 # CONFIG FILES
 echo; echo
