@@ -2,11 +2,6 @@
 # Install
   * Copy or clone proyect (preferred in `/opt` dir)
 ```bash
-cd /opt
-git clone https://github.com/leomarcov/labadmin-script_server_agent
+curl -L "https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/refs/heads/main/linux/install" | bash
  ```
 
-  * Exec install script
-```bash
-/opt/labadmin-script_server_agent/linux/install
- ```
