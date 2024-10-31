@@ -6,18 +6,18 @@
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
 #      LICENSE: GNU General Public License v3.0
-#      VERSION: 2022.06
-#      CREATED: 28.06.2022
+#      VERSION: 2024.06
+#      CREATED: 22.06.28
 #=================================================================================== 
 
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-readonly repository=linux														# Server repository name to query scripts
-readonly log_path="/var/log/labadmin-script_server_agent"						# File path where save logs
-readonly sshaddress="10.119.171.216"											# SSH IP address
-readonly sshport="58889"														# SSH port
-readonly sshuser="lss-agent"													# SSH username
+readonly repository=linux						# Server repository name to query scripts
+readonly log_path="/var/log/lss-agent"			# File path where save logs
+readonly sshaddress="10.119.171.216"			# SSH IP address
+readonly sshport="58889"						# SSH port
+readonly sshuser="lss-agent"					# SSH username
 
 # Local SSH agent key path for ssh authentication
 # CAUTION: after install sample keys are used, pelase consider generate and copy your own keys
