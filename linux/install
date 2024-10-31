@@ -13,8 +13,8 @@
 #===============================================================================
 #  GLOBAL VARIABLES
 #===============================================================================
-readonly install_dest="/opt/lss-agent/"				# Destination install directory
-
+readonly repo_dest="/opt/lss-agent/"					# Destination repository directory
+readonly install_dest="${repo_dest}/linux/"				# Destination install directory
 
 #=== FUNCTION ==================================================================
 #        NAME: check_root
@@ -35,14 +35,14 @@ check_root
 
 # COPY REPOSITORY
 echo
-echo -e "\e[1mCloning repository to "$install_dest"\e[0m"
-git clone "https://github.com/leomarcov/labadmin-script_server_agent" /opt/lss-agent/ || exit 1
+echo -e "\e[1mCloning repository to "$repo_dest"\e[0m"
+git clone "https://github.com/leomarcov/labadmin-script_server_agent" "$repo_dest" || exit 1
 
 # SET PERMISSIONS
 echo -e "\e[1mSetting permissions"\e[0m"
-chmod -R 750 "$install_dest"
+chmod -R 750 "$repo_dest"
 chmod 600 "${install_dest}"/*.pk
-chown -R root:root "$install_dest"
+chown -R root:root "$repo_dest"
 
 # CREATING SERVICE
 echo
@@ -53,7 +53,7 @@ After=network.target
  
 [Service]
 Type=simple
-ExecStart=bash '"${install_dest}/linux/lss-agent"'
+ExecStart=bash '"${install_dest}/lss-agent"'
 Restart=on-failure
 StandardOutput=journal
 StandardError=jorunal
