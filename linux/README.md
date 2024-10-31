@@ -4,4 +4,7 @@
 ```bash
 curl -L 'https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/refs/heads/main/linux/install' | bash
  ```
-
+# Uninstall
+```bash
+/opt/lss-agent/linux/uninstall
+ ```
