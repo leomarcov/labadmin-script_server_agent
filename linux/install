@@ -13,8 +13,7 @@
 #===============================================================================
 #  GLOBAL VARIABLES
 #===============================================================================
-readonly install_dest="/opt/labadmin-script_server_agent/linux/"	# Destination install directory
-readonly install_src="$(dirname "$(readlink -f "$0")")"				# Dont change
+readonly install_dest="/opt/lss-agent/"				# Destination install directory
 
 
 #=== FUNCTION ==================================================================
@@ -35,18 +34,12 @@ function check_root() {
 # CHECK PRIVILEGES
 check_root
 
-# CHECK INSTALL DIRS
+# COPY REPOSITORY
+echo -e "\e[1mCloning repository to "$install_dest"\e[0m"
+git clone "https://github.com/leomarcov/labadmin-script_server_agent" /opt/lss-agent/ || exit 1
 
-
-# COPY FILES
-if [ "$(realpath "$install_src")" != "$(realpath "$install_dest")" ]; then
-	echo -e "\e[1mCopying files to "$install_dest"\e[0m"
-	[ ! -d "$install_dest" ] && mkdir -vp "$install_dest" 
-	rm -rf "${install_dest}"/* "$install_dest"/.[!.]*
-	cp -vr "${install_src}/"* "$install_dest/"
-	echo
-fi
-chmod -R 700 "$install_dest"
+# SET PERMISSIONS
+chmod -R 750 "$install_dest"
 chmod 600 "${install_dest}"/*.pk
 chown -R root:root "$install_dest"
 
