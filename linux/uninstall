@@ -32,10 +32,6 @@ function check_root() {
 # CHECK PRIVILEGES
 check_root
 
-# REMOVE REPOSITORY
-echo -e "\e[1mRemoving repository to "$install_dest"\e[0m"
-rm -rf "$install_dest"
-
 # REMOVE SERVICE
 echo -e "\e[1mRemoving service lss-agent\e[0m"
 systemctl stop lss-agent.service
@@ -44,4 +40,6 @@ rm /etc/systemd/system/lss-agent.service
 systemctl daemon-reload
 systemctl reset-failed
 
-
+# REMOVE REPOSITORY
+echo -e "\e[1mRemoving repository to "$install_dest"\e[0m"
+rm -rf "$install_dest"
