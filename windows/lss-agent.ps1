@@ -169,13 +169,6 @@ ForEach ($script in $($script_list -split "`r`n")) {
 		log -Action "EXEC" -Status "ERR" -Script $script -Message $script_output
 		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
     }
-
- 	# REMOVE SCRIPT AND LOG
-  	# Check if no save script.ps1 and script.log files on $scripts_path
-  	if($script -match '\[NOSAVE\]') {
-   		Remove-Item -Force -LiteralPath $script_path
-		Remove-Item -Force -LiteralPath $script_log
-  	}
 	Write-Output "_______________________________________________________________________________________________________________`n"
 }
 
