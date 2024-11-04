@@ -6,7 +6,7 @@
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
 #	   LICENSE: GNU General Public License v3.0
-#      VERSION: 2024.10
+#      VERSION: 2024.11
 #      CREATED: 2022.06.28
 #=================================================================================== 
 
@@ -17,6 +17,7 @@
 readonly agent_path="$(dirname "$(readlink -f "$0")")"					# Agent installed path
 readonly hostname=$(hostname)											# Hostname
 readonly sshcmd="/opt/labadmin-script_server/lss-srv"					# Labadmin script server command path in remote server
+readonly agent_version=$(cat "${agent_path}/version" 2>/dev/null)		# Agent version
 
 # LOAD CONFIG VARIABLES
 source "${agent_path}/config"
@@ -59,7 +60,7 @@ function call_script_server() {
 	local script="$2"
 	local exec_msg="$3"
 
-	ssh 2>&1 -T -i "$sshprivatekey_path" ${sshuser}@${sshaddress} -p ${sshport} "bash ${sshcmd} -h \"${hostname}\" -M \"${mac}\" -r \"${repository}\" $([ "${action}" ] && echo "-a \""${action}"\"") $([ "${script}" ] && echo "-s \""${script}"\"") $([ "${exec_msg}" ] && echo "-m \""${exec_msg}"\"")" 
+	ssh 2>&1 -T -i "$sshprivatekey_path" ${sshuser}@${sshaddress} -p ${sshport} "bash ${sshcmd} -h \"${hostname}\" -M \"${mac}\" -r \"${repository}\" $([ "${action}" ] && echo "-a \""${action}"\"") $([ "${script}" ] && echo "-s \""${script}"\"") $([ "${exec_msg}" ] && echo "-m \""${exec_msg}"\"")  $([ "${agent_version}" ] && echo "-v \""${agent_version}"\"")" 
 	return $?
 }
 
