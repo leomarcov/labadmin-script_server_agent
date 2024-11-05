@@ -1,6 +1,5 @@
 #Requires -RunAsAdministrator
 
-#!/usr/bin/env bash
 #===================================================================================
 # LABADMIN SCRIPT SERVER AGENT FOR WINDOWS
 #         FILE: lss-agent.ps1
