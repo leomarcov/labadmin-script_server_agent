@@ -21,7 +21,7 @@ $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"  # Ag
 $scripts_path="${agent_data}\scripts"										# Downloaded scripts path stored
 $hostname=[Environment]::MachineName									    # Hostname 
 $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server command path in remote server
-$agent_version=Get-Content -Path -LiteralPath "${agent_path}\version"		# Agent version
+$agent_version=Get-Content -LiteralPath "${agent_path}\version"				# Agent version
 
 # LOAD CONFIG VARIABLES
 . ${agent_data}\config.ps1				
