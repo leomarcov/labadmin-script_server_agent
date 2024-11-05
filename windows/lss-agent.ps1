@@ -35,7 +35,6 @@ function log {
 	Param(
       [parameter(Mandatory=$true)]
 	  [String]$Action,
-	  [parameter(Mandatory=$true)]
       [String]$Script,
 	  [String]$Message
    )
