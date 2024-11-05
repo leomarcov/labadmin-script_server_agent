@@ -1,3 +1,15 @@
+#===================================================================================
+# LABADMIN SCRIPT SERVER AGENT CONFIG SCHEDULE
+#         FILE: lss-config-schedule.ps1
+#  DESCRIPTION: Labadmin script server script to config scheduled job
+#               enable/didable/register/unregister and show scheduled job to run lss-agent
+#
+#       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
+#	   LICENSE: GNU General Public License v3.0
+#      VERSION: 2024.11
+#      CREATED: 2022.06.28
+#=================================================================================== 
+
 <#
 .SYNOPSIS
   Config labadmin script server agent scheduled job
