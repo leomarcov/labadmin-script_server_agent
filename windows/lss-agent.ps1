@@ -29,22 +29,25 @@ $agent_version=Get-Content -LiteralPath "${agent_path}\version"				# Agent versi
 
 #=== FUNCTION ==================================================================
 #        NAME: log
-# DESCRIPTION: write line in log file using format: [DATETIME] [ACTION] [SCRIPT] MSG
+# DESCRIPTION: write line in log file using format: [DATETIME] [ACTION] [STATUS] [SCRIPT] MSG
 #===============================================================================
 function log {
 	Param(
       [parameter(Mandatory=$true)]
 	  [String]$Action,
+	  [parameter(Mandatory=$true)]
+	  [String]$Status,	  
       [String]$Script,
 	  [String]$Message
    )
 
 	$datetime="["+(Get-Date -Format "yyyy-MM-dd HH:mm:ss")+"] "
-	$action="[$action] "
+	$action="[$action]".PadRight(7)
+	$status="[${status}]".PadRight(6)	
  	if($script) { $script="[${script}] " }
-    if($message) { $message=$message.Replace("`r`n", " / ") }
+    if($message) { $message="$($message.Replace("`r`n", " / "))" }
 
-	$log_msg="${datetime}${action}${script}${message}"
+	$log_msg="${datetime}${action}${status}${script}${message}"
 	Add-Content -Force -Path $log_path -Value $log_msg
 }
 
@@ -64,7 +67,7 @@ function wait_connection {
 	}
 	
 	Write-Host -e "\e[1m\e[31mTimeout waiting for connection\e[0m"
- 	log -Action -"TIME_ERR" -Message "Time out connecting to server"
+ 	log -Action -"TIME" -Status "ERR" -Message "Time out connecting to server"
 	exit 1
 }
 
@@ -98,7 +101,7 @@ function call_script_server {
 wait_connection		
 # Open SSH session
 $session = New-SSHSession -ComputerName $sshaddress -Port $sshport -Credential (New-Object System.Management.Automation.PSCredential($sshuser, (new-object System.Security.SecureString))) -KeyFile $sshprivatekey_path
-if(!$?) { log -Action "SSH_ERR" -Message "Error connecting to SSH Server"; exit $LASTEXITCODE }
+if(!$?) { log -Action "SSH" -Status "ERR" -Message "Error connecting to SSH Server"; exit $LASTEXITCODE }
 # Get default MAC address
 $mac = (Get-NetAdapter | Where-Object { $_.ifIndex -eq (Find-NetRoute -RemoteIPAddress 8.8.8.8)[1].ifIndex }).MacAddress
 
@@ -110,13 +113,13 @@ $call_output_str=($call_output.Output | Out-String).Trim()					# Convert to stri
 if($call_output.ExitStatus -ne 0) {
 Write-Error "Error getting pending scripts list: ${call_output}`n"
     $call_output.Output
-    log -Action "LIST_ERR" -Message $call_output_str
+    log -Action "LIST" -Status "ERR" -Message $call_output_str
     exit 1
 }
 
 $script_list=$call_output_str
 if(!$script_list) {	Write-Output "0 pending scripts`n"; exit 0 }
-log -Action "LIST" -Message $script_list.Replace("`r`n", " // ")
+log -Action "LIST" -Status "OK" -Message "|$($script_list.Replace("`r`n", "|"))|"
 $script_list -Replace '(?m)^(?=.)', '  - '
 
 
@@ -134,7 +137,7 @@ ForEach ($script in $($script_list -split "`r`n")) {
 	if($call_output.ExitStatus -ne 0) {
 		Write-Error "  * Error getting script code $script"
 		$call_output.Output
-		log -Action "GET_ERR" -Script "$script" -Message $call_output_str
+		log -Action "GET" -Status "ERR" -Script "$script" -Message $call_output_str
 		continue
 	}
     $script_code=$call_output_str
@@ -160,13 +163,13 @@ ForEach ($script in $($script_list -split "`r`n")) {
     if($script_exitstatus) {
 		Write-Output "  * Execution termination: OK"
 		Write-Output "  * Saved output: $script_log"
-        log -Action "EXEC" -Script $script
+        log -Action "EXEC" -Status "OK" -Script $script
 		call_script_server -Action "exec_ok" -Script $script | Out-Null
 	} else {
 		Write-Output "  * Execution termination: ERROR (${script_exitcode})"
 		Write-Output "  * Saved output: $script_log"
 		$script_output=(Get-Content -LiteralPath $script_log -First 10| Out-String).replace("`r`n", " / ")
-		log -Action "EXEC_ERR" -Script $script -Message $script_output
+		log -Action "EXEC" -Status "ERR" -Script $script -Message $script_output
 		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
     }
 	Write-Output "_______________________________________________________________________________________________________________`n"
