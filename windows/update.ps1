@@ -3,7 +3,7 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$agent_path="${ENV:ProgramFiles}\labadmin\labadmin-script_server_agent"
+$agent_path="${ENV:ProgramFiles}\labadmin\lss-agent"
 $url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/main/windows"
 
 Write-Host "`nDownloading script files ..." -ForegroundColor Green
