@@ -1,5 +1,17 @@
 #Requires -RunAsAdministrator
 
+#===================================================================================
+# LABADMIN SCRIPT SERVER AGENT INSTALL FOR WINDOWS
+#         FILE: update.ps1
+#  DESCRIPTION: Labadmin script server client agent update for Windows hosts
+#
+#       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
+#	   LICENSE: GNU General Public License v3.0
+#      VERSION: 2024.11
+#      CREATED: 2022.06.28
+#=================================================================================== 
+
+
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
