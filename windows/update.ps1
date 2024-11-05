@@ -9,6 +9,7 @@ $url="https://raw.githubusercontent.com/leomarcov/labadmin-script_server_agent/m
 Write-Host "`nDownloading script files ..." -ForegroundColor Green
 Invoke-WebRequest -Uri ($url+"/lss-agent.ps1") -OutFile ($agent_path+"\lss-agent.ps1")
 Invoke-WebRequest -Uri ($url+"/lss-config-schedule.ps1") -OutFile ($agent_path+"\lss-config-schedule.ps1")
+Invoke-WebRequest -Uri ($url+"/version.ps1") -OutFile ($agent_path+"\version.ps1")
 Invoke-WebRequest -Uri ($url+"/install.ps1") -OutFile ($agent_path+"\install.ps1")
 Invoke-WebRequest -Uri ($url+"/uninstall.ps1") -OutFile ($agent_path+"\uninstall.ps1")
 Invoke-WebRequest -Uri ($url+"/update.ps1") -OutFile ($agent_path+"\update.ps1")
