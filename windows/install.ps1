@@ -62,6 +62,7 @@ Invoke-WebRequest -Uri ($url+"/lss-config-schedule.ps1") -OutFile ($agent_path+"
 Invoke-WebRequest -Uri ($url+"/install.ps1") -OutFile ($agent_path+"\install.ps1")
 Invoke-WebRequest -Uri ($url+"/uninstall.ps1") -OutFile ($agent_path+"\uninstall.ps1")
 Invoke-WebRequest -Uri ($url+"/update.ps1") -OutFile ($agent_path+"\update.ps1")
+Invoke-WebRequest -Uri ($url+"/version") -OutFile ($agent_path+"\version")
 if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/config.ps1") -OutFile ($agent_data+"\config.ps1") }
 if (-not (Test-Path ($agent_data+"\log.txt"))) { Invoke-WebRequest -Uri ($url+"/id_lss-agent.pk") -OutFile ($agent_data+"\id_lss-agent.pk") }
 if (-not (Test-Path ($agent_data+"\log.txt"))) { New-Item -ItemType File -Path ($agent_data+"\log.txt") -Force }
