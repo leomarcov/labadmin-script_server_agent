@@ -1,6 +1,6 @@
 #===================================================================================
 # LABADMIN SCRIPT SERVER AGENT CONFIG
-#         FILE: config
+#         FILE: config.ps1
 #  DESCRIPTION: Labadmin script server client agent config variables
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
