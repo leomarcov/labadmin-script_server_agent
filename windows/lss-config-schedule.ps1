@@ -30,8 +30,9 @@ Param(
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$agent_path="${ENV:ProgramFiles}\labadmin\labadmin-script_server_agent"
+$agent_path="${ENV:ProgramFiles}\labadmin\lss-agent"
 $agent_file="${agent_path}\lss-agent.ps1"
+$job_name="lss-agent"
 $agent_user="labadmin"
 
 
@@ -60,22 +61,22 @@ if((New-Object Security.Principal.WindowsPrincipal $([Security.Principal.Windows
 #  EXEC ACTIONS
 #===============================================================================
 if($enable) {
-	$job=$job=Get-ScheduledJob -Name labadmin-script_server-agent -ErrorAction Stop
+	$job=$job=Get-ScheduledJob -Name $job_name -ErrorAction Stop
 	Enable-ScheduledJob $job
 } 
 elseif($disable) {
-	$job=$job=Get-ScheduledJob -Name labadmin-script_server-agent -ErrorAction Stop
+	$job=$job=Get-ScheduledJob -Name $job_name -ErrorAction Stop
 	Disable-ScheduledJob $job
 }
 elseif($register) {
-	Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContinue
-	Register-ScheduledJob -Name labadmin-script_server-agent -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup) -ScheduledJobOption (New-ScheduledJobOption -RunElevated -RequireNetwork)
+	Unregister-ScheduledJob $job_name -ErrorAction SilentlyContinue
+	Register-ScheduledJob -Name $job_name -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup) -ScheduledJobOption (New-ScheduledJobOption -RunElevated -RequireNetwork)
 }
 elseif($unregister) {
-	Unregister-ScheduledJob labadmin-script_server-agent
+	Unregister-ScheduledJob $job_name
 }
 else {
-	$job=Get-ScheduledJob -Name labadmin-script_server-agent -ErrorAction Stop
+	$job=Get-ScheduledJob -Name $job_name -ErrorAction Stop
 	$job
     $job | Format-List -Property Name,Id,Command,Enabled,ExecutionHistoryLength
     $job.options
