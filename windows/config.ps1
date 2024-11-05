@@ -1,4 +1,3 @@
-#!/bin/bash
 #===================================================================================
 # LABADMIN SCRIPT SERVER AGENT CONFIG
 #         FILE: config
