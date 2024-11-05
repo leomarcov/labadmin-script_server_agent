@@ -16,8 +16,8 @@
 #===============================================================================
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
-$agent_path="${ENV:ProgramFiles}\labadmin\labadmin-script_server_agent"
-$agent_data="${ENV:ALLUSERSPROFILE}\labadmin\labadmin-script_server_agent"
+$agent_path="${ENV:ProgramFiles}\labadmin\lss-agent"
+$agent_data="${ENV:ALLUSERSPROFILE}\labadmin\lss-agent"
 $agent_file="${agent_path}\lss-agent.ps1"
 $agent_user="labadmin"
 
