@@ -1,6 +1,5 @@
 #Requires -RunAsAdministrator
 
-#!/usr/bin/env bash
 #===================================================================================
 # LABADMIN SCRIPT SERVER AGENT INSTALL FOR WINDOWS
 #         FILE: install.ps1
