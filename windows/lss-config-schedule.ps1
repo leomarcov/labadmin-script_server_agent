@@ -69,7 +69,7 @@ elseif($disable) {
 }
 elseif($register) {
 	Unregister-ScheduledJob labadmin-script_server-agent -ErrorAction SilentlyContinue
-	Register-ScheduledJob -Name labadmin-script_server-agent -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:01:00) -ScheduledJobOption (New-ScheduledJobOption -RunElevated -RequireNetwork)
+	Register-ScheduledJob -Name labadmin-script_server-agent -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup) -ScheduledJobOption (New-ScheduledJobOption -RunElevated -RequireNetwork)
 }
 elseif($unregister) {
 	Unregister-ScheduledJob labadmin-script_server-agent
