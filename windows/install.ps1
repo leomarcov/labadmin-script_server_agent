@@ -92,7 +92,7 @@ if(!(Get-Module Posh-SSH)) {
 #===============================================================================
 #  CREATE SCHEDULE JOB
 #===============================================================================
-Write-Host "`nCrearing scheduled job..." -ForegroundColor Green
+Write-Host "`nRegistering scheduled job..." -ForegroundColor Green
 Start-Process powershell -Wait -Credential $agent_user_cred -ArgumentList "-File `"${agent_path}\lss-config-schedule.ps1`" -register"
 
 
