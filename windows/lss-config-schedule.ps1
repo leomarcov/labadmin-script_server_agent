@@ -73,19 +73,17 @@ if((New-Object Security.Principal.WindowsPrincipal $([Security.Principal.Windows
 #  EXEC ACTIONS
 #===============================================================================
 if($enable) {
-	$job=$job=Get-ScheduledJob -Name $job_name -ErrorAction Stop
-	Enable-ScheduledJob $job
+	Enable-ScheduledJob -Name $job_name -ErrorAction Stop
 } 
 elseif($disable) {
-	$job=$job=Get-ScheduledJob -Name $job_name -ErrorAction Stop
-	Disable-ScheduledJob $job
+	Disable-ScheduledJob -Name $job_name -ErrorAction Stop
 }
 elseif($register) {
-	Unregister-ScheduledJob $job_name -ErrorAction SilentlyContinue
+	Unregister-ScheduledJob -Name $job_name -ErrorAction SilentlyContinue
 	Register-ScheduledJob -Name $job_name -FilePath $agent_file -Trigger (New-JobTrigger -AtStartup) -ScheduledJobOption (New-ScheduledJobOption -RunElevated -RequireNetwork)
 }
 elseif($unregister) {
-	Unregister-ScheduledJob $job_name
+	Unregister-ScheduledJob -Name $job_name -ErrorAction Stop
 }
 else {
 	$job=Get-ScheduledJob -Name $job_name -ErrorAction Stop
