@@ -56,13 +56,11 @@ function log {
 # DESCRIPTION: wait until server connection is active or exit if cant connect
 #===============================================================================
 function wait_connection {
-	$n=20		# Number of tries
-	$d=15		# Delay in seconds in each time
+	$n=30		# Number of tries
 
 	for(; $n -gt 0; $n--) {
-		if((Test-Connection $sshaddress -Count 1 -ErrorAction SilentlyContinue)) { return }
-		Write-Host "Waiting for server connection..."
-		Start-Sleep $d
+		if((Test-NetConnection $sshaddress -Port $sshport -ErrorAction SilentlyContinue).TcpTestSucceeded) { return }
+		Write-Host "Waiting for server connection..."	
 	}
 	
 	Write-Host -e "\e[1m\e[31mTimeout waiting for connection\e[0m"
