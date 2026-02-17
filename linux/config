@@ -14,7 +14,7 @@
 #  GLOBAL CONFIG VARIABLES
 #===============================================================================
 readonly repository="linux"                   # Server repository name to query scripts
-readonly log_path="/var/log/lss-agent"        # File path where save logs
+readonly log_path="/var/log/lss-agent/"       # Directory path where save logs and scripts
 readonly sshaddress="10.119.171.216"          # SSH IP address
 readonly sshport="58889"                      # SSH port
 readonly sshuser="lss-agent"                  # SSH username
