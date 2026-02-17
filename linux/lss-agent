@@ -18,6 +18,9 @@ readonly agent_path="$(dirname "$(readlink -f "$0")")"					# Agent installed pat
 readonly hostname=$(hostname)											# Hostname
 readonly sshcmd="/opt/labadmin-script_server/lss-srv"					# Labadmin script server command path in remote server
 readonly agent_version=$(cat "${agent_path}/version" 2>/dev/null)		# Agent version
+readonly log_file="$log_path/log"                                       # Log file where save action logs
+readonly scripts_path="$log_path/scripts/"                              # Log directory where save scripts and exec logs
+
 
 # LOAD CONFIG VARIABLES
 source "${agent_path}/config"
@@ -38,9 +41,9 @@ function log() {
 	[ "$script" ] && script="[$script]"$'\t'
 
 	log_msg="[$(date "+%Y-%m-%d %H:%M:%S")] ${action} ${script}"
-	[[ "$action" = LIST* ]] && log_msg="└─────────────────────────────────────────────────────────────────────────────────────────────────┘\n\n\n┌─────────────────────────────────────────────────────────────────────────────────────────────────┐"
-	[ "$exec_msg" ] && { exec_msg=$'\t'"${exec_msg//$'\n'/$'\n    '}"; log_msg="${log_msg}\n${exec_msg}"
-	echo -e "${log_msg}" >> "$log_path"
+	[[ "$action" = LIST* ]] && log_msg="└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n\n\n┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐"
+	[ "$exec_msg" ] && { exec_msg=$'\t'"${exec_msg//$'\n'/$'\n    '}"; log_msg="${log_msg}\n${exec_msg}"; }"
+	echo -e "${log_msg}" >> "$log_file"
 }
 
 
@@ -92,7 +95,12 @@ function initialize() {
 		echo -e "\e[1m\e[31mMust be exec with administrative privileges\e[0m"
 		exit 1
 	fi
-		
+
+	# CHECK LOG PATH
+	[ -f "$log_path" ] && rm "$log_path"
+	[ ! -d "$log_path" ] && mkdir -p "$log_path"
+	[ ! -d "$scripts_path" ] && mkdir -p "$scripts_path"
+	
 	# CHECK SSH PRIVATE KEY
 	if ! ssh-keygen -l -f "$sshprivatekey_path" 1>/dev/null; then
 		echo -e "\e[1m\e[31mError loading SSH agent private key: $sshprivatekey_path\e[0m"
@@ -155,11 +163,17 @@ function main() {
 		echo -e "$script: $(echo "$script_code" | wc -l) lines"
 		echo
 
+		# SAVE SCRIPT
+		script_path="[$(date +%D_%T | tr "/:" "-.")] ${script//\// }"
+		script_log="${script_path}.log"
+		script_path="${script_path}.sh"
+		echo "$script_code" > "$script_path"
+		echo -e "Saving script: $script_path"
+
 		# EXEC SCRIPT
 		echo -e "\e[1mExecuting  script code for:\e[0m $script"
-		exec_msg=$(echo "$script_code" | bash 2>&1)
+		bash "$script_code" | tee "$script_log"
 		exec_code=$?
-		echo "$exec_msg"
 		if [ $exec_code -eq 0 ]; then 
 			log "exec_ok" "$script"
 			call_script_server "exec_ok" "$script"
