@@ -168,9 +168,9 @@ function main() {
 			call_script_server "exec_ok" "$script"
 		else
 			echo -e "\e[1m\e[31mError executing script code $script\e[0m"
-			log "exec_error" "$script" "$exec_msg"
 			exec_msg_min="${exec_msg//$'\n'/ \\ }"; exec_msg_min="${exec_msg_min:0:50}"
-			call_script_server "exec_error" "$script" "${exec_msg_min} ..."
+			log "exec_error" "$script" "$exec_msg_min"
+			call_script_server "exec_error" "$script" "${exec_msg}"
 		fi
 	done
 	IFS="$IFS2"
