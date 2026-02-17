@@ -42,6 +42,7 @@ function log {
 
 	$datetime="["+(Get-Date -Format "yyyy-MM-dd HH:mm:ss")+"] "
 	$action="[$action]".PadRight(7)
+	if ($action -eq "LIST") { $action="`n${action}"}
 	$status="[${status}]".PadRight(6)	
  	if($script) { $script="[${script}] " }
     if($message) { $message="$($message.Replace("`r`n", " / "))" }
@@ -165,8 +166,8 @@ ForEach ($script in $($script_list -split "`r`n")) {
 	} else {
 		Write-Output "  * Execution termination: ERROR (${script_exitcode})"
 		Write-Output "  * Saved output: $script_log"
-		$script_output=(Get-Content -LiteralPath $script_log -First 10| Out-String).replace("`r`n", " / ")
-		log -Action "EXEC" -Status "ERR" -Script $script -Message $script_output
+		$script_output=Get-Content -LiteralPath $script_log | Out-String
+		log -Action "EXEC" -Status "ERR" -Script $script -Message (($script_output -split "\r?\n" | Select-Object -First 10) -join "/")
 		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
     }
 	Write-Output "_______________________________________________________________________________________________________________`n"
