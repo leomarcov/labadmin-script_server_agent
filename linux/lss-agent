@@ -41,8 +41,14 @@ function log() {
 	[ "$script" ] && script="[$script]"$'\t'
 
 	log_msg="[$(date "+%Y-%m-%d %H:%M:%S")] ${action} ${script}"
-	[[ "$action" = LIST* ]] && log_msg="└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n\n\n┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐"
-	[ "$exec_msg" ] && { exec_msg=$'\t'"${exec_msg//$'\n'/$'\n    '}"; log_msg="${log_msg}\n${exec_msg}"; }"
+	[[ "$action" = LIST* ]] && log_msg="└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n\n\n┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐${log_msg}"
+	if [[ "$action" = EXEC* ]]; then
+		log_msg="${log_msg}\t[${exec_msg}]"
+	else
+		exec_msg=$'\t'"${exec_msg//$'\n'/$'\n\t'}"      # Add tab at begining each line
+		log_msg="${log_msg}\n${exec_msg}"
+	fi
+	[[ "$action" = LIST* ]] && log_msg="${log_msg}\n"
 	echo -e "${log_msg}" >> "$log_file"
 }
 
@@ -167,21 +173,22 @@ function main() {
 		script_path="[$(date +%D_%T | tr "/:" "-.")] ${script//\// }"
 		script_log="${script_path}.log"
 		script_path="${script_path}.sh"
-		echo "$script_code" > "$script_path"
+		echo "$script_code" > "$script_path" || { echo -e "\e[1m\e[31mError saving script: $script_path\e[0m"; exit 1; }
 		echo -e "Saving script: $script_path"
 
 		# EXEC SCRIPT
 		echo -e "\e[1mExecuting  script code for:\e[0m $script"
 		bash "$script_code" | tee "$script_log"
 		exec_code=$?
+		echo -e "Saved output: $script_log"
+		exec_msg=$(cat "$script_log")
 		if [ $exec_code -eq 0 ]; then 
-			log "exec_ok" "$script"
-			call_script_server "exec_ok" "$script"
+			log "exec_ok" "$script" "$script_log"
+			call_script_server "exec_ok" "$script" "$exec_msg"
 		else
 			echo -e "\e[1m\e[31mError executing script code $script\e[0m"
-			exec_msg_min="${exec_msg//$'\n'/ \\ }"; exec_msg_min="${exec_msg_min:0:50}"
-			log "exec_error" "$script" "$exec_msg_min"
-			call_script_server "exec_error" "$script" "${exec_msg}"
+			log "exec_error" "$script" "$script_log"
+			call_script_server "exec_error" "$script" "$exec_msg"
 		fi
 	done
 	IFS="$IFS2"
