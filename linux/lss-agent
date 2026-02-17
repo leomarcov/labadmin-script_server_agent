@@ -12,9 +12,14 @@
 
 
 #===============================================================================
-#  GLOBAL VARIABLES
+#  LOAD GLOBAL CONFIG
 #===============================================================================
 readonly agent_path="$(dirname "$(readlink -f "$0")")"					# Agent installed path
+source "${agent_path}/config"
+
+#===============================================================================
+#  GLOBAL VARIABLES
+#===============================================================================
 readonly hostname=$(hostname)											# Hostname
 readonly sshcmd="/opt/labadmin-script_server/lss-srv"					# Labadmin script server command path in remote server
 readonly agent_version=$(cat "${agent_path}/version" 2>/dev/null)		# Agent version
@@ -22,8 +27,7 @@ readonly log_file="$log_path/log"                                       # Log fi
 readonly scripts_path="$log_path/scripts/"                              # Log directory where save scripts and exec logs
 
 
-# LOAD CONFIG VARIABLES
-source "${agent_path}/config"
+
 
 
 
@@ -103,9 +107,9 @@ function initialize() {
 	fi
 
 	# CHECK LOG PATH
-	[ -f "$log_path" ] && rm "$log_path"
-	[ ! -d "$log_path" ] && mkdir -p "$log_path"
-	[ ! -d "$scripts_path" ] && mkdir -p "$scripts_path"
+	[ -f "$log_path" ] && rm -f "$log_path"
+	[ ! -d "$log_path" ] && mkdir -p "$log_path" &>/dev/null
+	[ ! -d "$scripts_path" ] && mkdir -p "$scripts_path" &>/dev/null
 	
 	# CHECK SSH PRIVATE KEY
 	if ! ssh-keygen -l -f "$sshprivatekey_path" 1>/dev/null; then
@@ -135,7 +139,7 @@ function main() {
 	initialize
 
 	# GET PENDING SCRIPT LIST
-	echo -e "\e[1mGetting pending scripts list...\e[0m"
+	echo -e "\e[1mGETTING PENDING SCRIPT LIST\e[0m"
 	call_output=$(call_script_server "list")
 	if [ $? -ne 0 ]; then
 		echo -e "\e[1m\e[31mError getting pending scripts list\e[0m"
