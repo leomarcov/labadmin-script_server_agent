@@ -24,7 +24,7 @@ readonly hostname=$(hostname)											# Hostname
 readonly sshcmd="/opt/labadmin-script_server/lss-srv"					# Labadmin script server command path in remote server
 readonly agent_version=$(cat "${agent_path}/version" 2>/dev/null)		# Agent version
 readonly log_file="${log_path}/log"                                     # Log file where save action logs
-readonly scripts_path="${log_path}/scripts"                            # Log directory where save scripts and exec logs
+readonly scripts_path="${log_path}/scripts"                             # Log directory where save scripts and exec logs
 
 
 
