@@ -6,7 +6,7 @@
 #
 #       AUTHOR: Leonardo Marco (labadmin@leonardomarco.com)
 #	   LICENSE: GNU General Public License v3.0
-#      VERSION: 2024.11
+#      VERSION: 2026.02
 #      CREATED: 2022.06.28
 #=================================================================================== 
 
@@ -23,10 +23,8 @@ source "${agent_path}/config"
 readonly hostname=$(hostname)											# Hostname
 readonly sshcmd="/opt/labadmin-script_server/lss-srv"					# Labadmin script server command path in remote server
 readonly agent_version=$(cat "${agent_path}/version" 2>/dev/null)		# Agent version
-readonly log_file="$log_path/log"                                       # Log file where save action logs
-readonly scripts_path="$log_path/scripts/"                              # Log directory where save scripts and exec logs
-
-
+readonly log_file="${log_path}/log"                                     # Log file where save action logs
+readonly scripts_path="${log_path}/scripts"                            # Log directory where save scripts and exec logs
 
 
 
@@ -42,17 +40,17 @@ function log() {
 
 	action_width=11
 	action="[${action^^}]$(seq -s" " 1 $(($action_width-${#action}))|tr -d "[0-9]")"
-	[ "$script" ] && script="[$script]"$'\t'
+	[ "$script" ] && script="[$script]"
 
 	log_msg="[$(date "+%Y-%m-%d %H:%M:%S")] ${action} ${script}"
-	[[ "$action" = LIST* ]] && log_msg="└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n\n\n┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐${log_msg}"
-	if [[ "$action" = EXEC* ]]; then
-		log_msg="${log_msg}\t[${exec_msg}]"
+	[[ "$action" = *LIST* ]] && log_msg="└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n\n┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐\n${log_msg}"
+	if [[ "$action" = *EXEC* ]]; then
+		log_msg="${log_msg} -> '${exec_msg}'"
 	else
-		exec_msg=$'\t'"${exec_msg//$'\n'/$'\n\t'}"      # Add tab at begining each line
+		exec_msg="    ${exec_msg//$'\n'/$'\n    '}"      # Add spaces at begining each line
 		log_msg="${log_msg}\n${exec_msg}"
 	fi
-	[[ "$action" = LIST* ]] && log_msg="${log_msg}\n"
+	[[ "$action" = *LIST* ]] && log_msg="${log_msg}\n"
 	echo -e "${log_msg}" >> "$log_file"
 }
 
@@ -70,7 +68,19 @@ function call_script_server() {
 	local script="$2"
 	local exec_msg="$3"
 
-	ssh 2>&1 -n -T -i "$sshprivatekey_path" ${sshuser}@${sshaddress} -p ${sshport} "bash ${sshcmd} -h \"${hostname}\" -M \"${mac}\" -r \"${repository}\" $([ "${action}" ] && echo "-a \""${action}"\"") $([ "${script}" ] && echo "-s \""${script}"\"") $([ "${exec_msg}" ] && echo "-m \""${exec_msg}"\"")  $([ "${agent_version}" ] && echo "-v \""${agent_version}"\"")" 
+	# Args array
+	args=()
+	[ -n "$action" ]        && args+=(-a "$action")
+	[ -n "$script" ]        && args+=(-s "$script")
+	[ -n "$exec_msg" ]      && args+=(-m "$exec_msg")
+	[ -n "$agent_version" ] && args+=(-v "$agent_version")
+
+	# Save remote command scaped en remote_cmd variable
+	printf -v remote_cmd '%q ' bash "$sshcmd" -h "$hostname" -M "$mac" -r "$repository" "${args[@]}"
+
+	# SSH exec
+	ssh 2>&1 -n -T -i "$sshprivatekey_path" "${sshuser}@${sshaddress}" -p "$sshport" "$remote_cmd"
+
 	return $?
 }
 
@@ -108,8 +118,8 @@ function initialize() {
 
 	# CHECK LOG PATH
 	[ -f "$log_path" ] && rm -f "$log_path"
-	[ ! -d "$log_path" ] && mkdir -p "$log_path" &>/dev/null
-	[ ! -d "$scripts_path" ] && mkdir -p "$scripts_path" &>/dev/null
+	[ ! -d "$log_path" ] && mkdir -p "$log_path" 
+	[ ! -d "$scripts_path" ] && mkdir -p "$scripts_path" 
 	
 	# CHECK SSH PRIVATE KEY
 	if ! ssh-keygen -l -f "$sshprivatekey_path" 1>/dev/null; then
@@ -153,47 +163,65 @@ function main() {
 		echo "0 pending scripts"
 		exit 0
 	fi
-	echo "$script_list"
+	echo -e "$(echo "  \e[1m\e[33m${script_list//$'\n'/$'\n  \\e[1m\\e[33m'}" | sed 's/\/ *\(.*\)$/\\e[0m\t[\1]/g' | column -t -s $'\t')"
 
 	# GET AND EXEC SCRIPTS
 	IFS2="$IFS"; IFS=$'\n';
 	for script in $script_list; do
 		echo
-		echo "##########################################################################"
+		echo "┌──────────────────────────────────────────────────────────────────────────────┐"
+
+		# GET SCRIPT OPTIONS
+		script_opts="${script#*/}"   					# Script name after / -> options
+		script="${script%%/*}"       					# Script name befor / -> script name
+		script=${script%"${script##*[![:space:]]}"}		# Script name trim
+		opt_nosavelog=""
+		[[ "${script_opts,,}" = *nosavelog* ]] && opt_nosavelog="true"
+
 
 		# GET SCRIPT CODE
-		echo -e "\e[1mGetting script code for:\e[0m $script"
+		echo -e "\e[1m\e[33m $script\e[0m"
 		script_code=$(call_script_server "get" "$script")
 		if [ $? -ne 0 ]; then
-			echo -e "\e[1m\e[31mError getting script code $script\e[0m"
+			echo -e "\e[1m\e[31mERROR GETTING SCRIPT CODE: $script\e[0m"
 			echo "$script_code"
 			log "get_error" "$script" "$script_code"
 			continue
 		fi
-		echo -e "$script: $(echo "$script_code" | wc -l) lines"
-		echo
 
 		# SAVE SCRIPT
-		script_path="[$(date +%D_%T | tr "/:" "-.")] ${script//\// }"
+		script_path="${scripts_path}/[$(date +%D_%T | tr "/:" "-.")] ${script//\// }"
 		script_log="${script_path}.log"
 		script_path="${script_path}.sh"
-		echo "$script_code" > "$script_path" || { echo -e "\e[1m\e[31mError saving script: $script_path\e[0m"; exit 1; }
-		echo -e "Saving script: $script_path"
+		echo "$script_code" > "$script_path" || { echo -e "\e[1m\e[31mERROR SAVING SCRIPT: ${script_path}\e[0m"; log "save_error" "$script"; continue; }
+		echo -e "\e[1mSCRIPT FILE\e[0m: '$script_path'"
+		echo -e "\e[1mOUTPUT FILE\e[0m: '$script_log'"
 
 		# EXEC SCRIPT
-		echo -e "\e[1mExecuting  script code for:\e[0m $script"
-		bash "$script_code" | tee "$script_log"
-		exec_code=$?
-		echo -e "Saved output: $script_log"
+		echo -e "\e[1m\nEXECUTION SCRIPT\e[0m"
+		bash "$script_path" | tee "$script_log"
+		exec_code=${PIPESTATUS[0]}
 		exec_msg=$(cat "$script_log")
+		echo
+
+		# OPTION NOSAVELOG 
+		if [ "$opt_nosavelog" ]; then
+			rm -f "$script_log" "$script_path"
+			script_log="NOSAVELOG"
+		fi
+
 		if [ $exec_code -eq 0 ]; then 
 			log "exec_ok" "$script" "$script_log"
 			call_script_server "exec_ok" "$script" "$exec_msg"
 		else
-			echo -e "\e[1m\e[31mError executing script code $script\e[0m"
+			echo -e "\e[1m\e[31mERROR EXECUTING SCRIPT: $script\e[0m"
 			log "exec_error" "$script" "$script_log"
 			call_script_server "exec_error" "$script" "$exec_msg"
 		fi
+
+		echo -e "\e[1mEXIT CODE\e[0m: $exec_code"
+		echo "└──────────────────────────────────────────────────────────────────────────────┘"
+
 	done
 	IFS="$IFS2"
 	echo
