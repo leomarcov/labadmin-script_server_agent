@@ -201,16 +201,24 @@ function main() {
 		echo -e "\e[1m\nEXECUTION SCRIPT\e[0m"
 		bash "$script_path" | tee "$script_log"
 		exec_code=${PIPESTATUS[0]}
+		echo -e "\nEXIT CODE: $exec_code" >> "$script_log"
 		exec_msg=$(cat "$script_log")
 		echo
 
-		# OPTION NOSAVELOG 
-		if [ "$opt_nosavelog" ]; then
+		# RENAME SCRIPT FILE AND LOG TO: ...[EXEC_CODE].sh and ...[EXEC_CODE].log
+		if [ "$opt_nosavelog" ]; then				# Option NOSAVELOG -> remove script file and log
 			rm -f "$script_log" "$script_path"
 			script_log="NOSAVELOG"
+		else
+			[ $exec_code -eq 0 ] && ec="EXEC_OK" || ec="EXEC_ERROR"
+			mv "$script_path" "${script_path%.sh} [${ec}].sh"
+			mv "$script_log" "${script_log%.log} [${ec}].log" 
+			script_path="${script_path%.sh} [${ec}].sh"
+			script_log="${script_log%.log} [${ec}].log" 
 		fi
 
-		if [ $exec_code -eq 0 ]; then 
+		# SEND EXIT CODE TO SERVER AND LOG
+		if [ $exec_code -eq 0 ]; then
 			log "exec_ok" "$script" "$script_log"
 			call_script_server "exec_ok" "$script" "$exec_msg"
 		else
