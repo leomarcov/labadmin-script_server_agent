@@ -163,7 +163,7 @@ function main() {
 		echo "0 pending scripts"
 		exit 0
 	fi
-	echo -e "$(echo "  \e[1m\e[33m${script_list//$'\n'/$'\n  \\e[1m\\e[33m'}" | sed 's/\/\([^/\n\t ]*\)\s*/\\e[0m\t[\1]/g' | column -t -s $'\t')"
+	echo -e "$(echo "$script_list" | sed 's/\//\t\//' | column -t -s $'\t' | sed 's/\//\\e[0m\//' | sed 's/^/  \\e\[1m\\e\[33m/')"
 
 	# GET AND EXEC SCRIPTS
 	IFS2="$IFS"; IFS=$'\n';
@@ -187,7 +187,7 @@ function main() {
 		fi
 
 		# SAVE SCRIPT
-		script_path="${scripts_path}/[$(date +%D_%T | tr "/:" "-.")] ${script//\// }"
+		script_path="${scripts_path}/[$(date "+%Y-%m-%d_%H.%M.%S" | tr "/:" "-.")][EXEC_XX] ${script//\// }"
 		script_log="${script_path}.log"
 		script_path="${script_path}.sh"
 		echo "$script_code" > "$script_path" || { echo -e "\e[1m\e[31mERROR SAVING SCRIPT: ${script_path}\e[0m"; log "save_error" "$script"; continue; }
@@ -198,20 +198,20 @@ function main() {
 		echo -e "\e[1m\nEXECUTION SCRIPT\e[0m"
 		bash "$script_path" | tee "$script_log"
 		exec_code=${PIPESTATUS[0]}
-		echo -e "\nEXIT CODE: $exec_code" >> "$script_log"
 		exec_msg=$(cat "$script_log")
 		echo
 
-		# RENAME SCRIPT FILE AND LOG TO: ...[EXEC_CODE].sh and ...[EXEC_CODE].log
+		# RENAME SCRIPT FILE AND LOG ADDING [EXEC_CODE] TO FILENAME
 		if [ "$opt_nosavelog" ]; then				# Option NOSAVELOG -> remove script file and log
 			rm -f "$script_log" "$script_path"
 			script_log="NOSAVELOG"
 		else
-			[ $exec_code -eq 0 ] && ec="EXEC_OK" || ec="EXEC_ERROR"
-			mv "$script_path" "${script_path%.sh} [${ec}].sh"
-			mv "$script_log" "${script_log%.log} [${ec}].log" 
-			script_path="${script_path%.sh} [${ec}].sh"
-			script_log="${script_log%.log} [${ec}].log" 
+			[ $exec_code -eq 0 ] && ec="EXEC_OK" || ec="EXEC_ER"
+			script_path_old="$script_path"; script_log_old="$script_log"
+			script_path="${script_path//\[EXEC_XX\]/[$ec]}"
+			script_log="${script_log//\[EXEC_XX\]/[$ec]}"
+			mv "$script_path_old" "$script_path"
+			mv "$script_log_old" "$script_log"
 		fi
 
 		# SEND EXIT CODE TO SERVER AND LOG
