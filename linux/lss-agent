@@ -163,7 +163,7 @@ function main() {
 		echo "0 pending scripts"
 		exit 0
 	fi
-	echo -e "$(echo "$script_list" | sed 's/\//\t\//' | column -t -s $'\t' | sed 's/\//\\e[0m\//' | sed 's/^/  \\e\[1m\\e\[33m/')"
+	echo -e "$(echo "$script_list" | sed 's/\//\t\//' | column -t -s $'\t' | sed 's/\//\\e[0m\//' | sed 's/^/  \\e\[1m\\e\[33m/')\e[0m"
 
 	# GET AND EXEC SCRIPTS
 	IFS2="$IFS"; IFS=$'\n';
