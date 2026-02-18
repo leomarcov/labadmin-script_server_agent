@@ -163,7 +163,7 @@ function main() {
 		echo "0 pending scripts"
 		exit 0
 	fi
-	echo -e "$(echo "  \e[1m\e[33m${script_list//$'\n'/$'\n  \\e[1m\\e[33m'}" | sed 's/\/ *\(.*\)$/\\e[0m\t[\1]/g' | column -t -s $'\t')"
+	echo -e "$(echo "  \e[1m\e[33m${script_list//$'\n'/$'\n  \\e[1m\\e[33m'}" | sed 's/\/\([^/\n\t ]*\)\s*/\\e[0m\t[\1]/g' | column -t -s $'\t')"
 
 	# GET AND EXEC SCRIPTS
 	IFS2="$IFS"; IFS=$'\n';
@@ -172,12 +172,9 @@ function main() {
 		echo "┌──────────────────────────────────────────────────────────────────────────────┐"
 
 		# GET SCRIPT OPTIONS
-		script_opts="${script#*/}"   					# Script name after / -> options
-		script="${script%%/*}"       					# Script name befor / -> script name
-		script=${script%"${script##*[![:space:]]}"}		# Script name trim
-		opt_nosavelog=""
-		[[ "${script_opts,,}" = *nosavelog* ]] && opt_nosavelog="true"
-
+		unset opt_nosavelog; [[ "${script,,}" = */nosavelog* ]] && opt_nosavelog="true"		# Get NOSAVELOG option
+		script="${script%%/*}"       														# Clean script name -> delete all after / 
+		script=${script%"${script##*[![:space:]]}"}											# Script name trim spaces
 
 		# GET SCRIPT CODE
 		echo -e "\e[1m\e[33m $script\e[0m"
