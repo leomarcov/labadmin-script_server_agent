@@ -73,7 +73,7 @@ function call_script_server() {
 	[ -n "$script" ]        && args+=(-s "$script")
 	[ -n "$exec_msg" ]      && args+=(-m "$exec_msg")
 	[ -n "$agent_version" ] && args+=(-v "$agent_version")
-	[ -n "$agent_model" ]   && args+=(-v "$agent_model")
+	[ -n "$agent_model" ]   && args+=(-c "$agent_model")
 
 	# Save remote command scaped en remote_cmd variable
 	printf -v remote_cmd '%q ' bash "$sshcmd" -h "$hostname" -M "$mac" -r "$repository" "${args[@]}"
