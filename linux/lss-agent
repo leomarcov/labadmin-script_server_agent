@@ -25,8 +25,7 @@ readonly sshcmd="/opt/labadmin-script_server/lss-srv"					# Labadmin script serv
 readonly agent_version=$(cat "${agent_path}/version" 2>/dev/null)		# Agent version
 readonly log_file="${log_path}/log"                                     # Log file where save action logs
 readonly scripts_path="${log_path}/scripts"                             # Log directory where save scripts and exec logs
-
-
+readonly agent_model=$(cat /sys/devices/virtual/dmi/id/{sys_vendor,product_name,product_version} 2>/dev/null | grep -v "Default string" | paste -sd "|" | sed 's/[^a-zA-Z0-9\-\_ |.]//g')		# Agent computer model description
 
 
 #=== FUNCTION ==================================================================
@@ -74,6 +73,7 @@ function call_script_server() {
 	[ -n "$script" ]        && args+=(-s "$script")
 	[ -n "$exec_msg" ]      && args+=(-m "$exec_msg")
 	[ -n "$agent_version" ] && args+=(-v "$agent_version")
+	[ -n "$agent_model" ]   && args+=(-v "$agent_model")
 
 	# Save remote command scaped en remote_cmd variable
 	printf -v remote_cmd '%q ' bash "$sshcmd" -h "$hostname" -M "$mac" -r "$repository" "${args[@]}"
