@@ -109,7 +109,7 @@ Write-Output "`nGETTING PENDING SCRIPT LISTS..."
 $call_output=call_script_server -Action "list" 
 $call_output_str=($call_output.Output | Out-String).Trim()					# Convert to string
 if($call_output.ExitStatus -ne 0) {
-Write-Error "Error getting pending scripts list: ${call_output}`n"
+Write-Error "Error getting pending scripts list`n"
     $call_output.Output
     log -Action "LIST" -Status "ERR" -Message $call_output_str
     exit 1
@@ -118,7 +118,7 @@ Write-Error "Error getting pending scripts list: ${call_output}`n"
 $script_list=$call_output_str
 if(!$script_list) {	Write-Output "0 pending scripts`n"; exit 0 }
 log -Action "LIST" -Status "OK" -Message "|$($script_list.Replace("`r`n", "|"))|"
-$script_list -Replace '(?m)^(?=.)', '  - '
+$script_list -Replace '(?m)^(?=.)', '  - ' | ForEach-Object { Write-Output ($_ -replace '(/[^\r\n]*)', "$([char]27)[1m`$1$([char]27)[0m")) }
 
 
 Write-Output "`n`nEXECUTING SCRIPTS..."
@@ -130,14 +130,13 @@ ForEach ($script in $($script_list -split "`r`n")) {
 	$opt_nosavelog = $script -ilike '*/nosavelog*'								# Get NOSAVELOG option
 	$script = $script -replace '/.*$', ''										# Clean script name -> delete all after /
 	$script = $script.Trim()													# Script name trim spaces
-	Write-Output "SCRIPT: $script"
 
 	# GET SCRIPT CODE
-	Write-Output "  * Getting code: $script"
+	Write-Output "SCRIPT: $script"
 	$call_output=call_script_server -Action "get" -Script "$script"
 	$call_output_str=($call_output.Output | Out-String).Trim()					# Convert to string
 	if($call_output.ExitStatus -ne 0) {
-		Write-Error "  * Error getting script code $script"
+		Write-Error "ERROR GETTING SCRIPT CODE: $script"
 		$call_output.Output
 		log -Action "GET" -Status "ERR" -Script "$script" -Message $call_output_str
 		continue
@@ -150,17 +149,17 @@ ForEach ($script in $($script_list -split "`r`n")) {
 	$script_path=$script_path.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'				# Remplace illegal path chars to _
   	$script_log="${scripts_path}\${script_path}.log"
     $script_path="${scripts_path}\${script_path}.ps1"
-	Write-Output "  * Saving script: $script_path"
 	$script_code | Out-File -Force -LiteralPath $script_path
+	Write-Output "SCRIPT FILE: $script_path"
+	Write-Output "OUTPUT FILE: $script_Log"
 	
  	# EXEC SCRIPT 
-    Write-Output "  * Executing: $script"
-    Write-Output "`n+--- OUTPUT -----------------------------------------------------------------+"
+    Write-Output "EXECUTION SCRIPT"
 	& $script_path 2>&1 | Tee-Object -LiteralPath $script_log				# Exec saved script and redirect log to script log file
     $script_exitstatus=$?; $script_exitcode=$LASTEXITCODE
 	$exec_msg = Get-Content -LiteralPath $script_log -Raw
-	Write-Output "`n+----------------------------------------------------------------------------+"
-
+	Write-Output
+	
 	# RENAME SCRIPT FILE AND LOG ADDING [EXEC_CODE] TO FILENAME
 	if($opt_nosavelog) {													# Option NOSAVELOG -> remove script file and log
 		script_log="NOSAVELOG"
@@ -177,17 +176,14 @@ ForEach ($script in $($script_list -split "`r`n")) {
 
 	# SEND EXIT CODE TO SERVER AND LOG
     if($script_exitstatus) {
-		Write-Output "  * Execution termination: OK"
-		Write-Output "  * Saved output: $script_log"
         log -Action "EXEC" -Status "OK" -Script $script
 		call_script_server -Action "exec_ok" -Script $script -Message $exec_msg | Out-Null
 	} else {
-		Write-Output "  * Execution termination: ERROR (${script_exitcode})"
-		Write-Output "  * Saved output: $script_log"
+		Write-Output "ERROR EXECUTING SCRIPT: $script"
 		log -Action "EXEC" -Status "ERR" -Script $script
 		call_script_server -Action "exec_error" -Script $script -Message $exec_msg | Out-Null
     }
+	Write-Output "EXIT CODE: $script_exitcode"
 	Write-Output "└──────────────────────────────────────────────────────────────────────────────┘`n"
 }
-
-Write-Output "`n"
+Write-Output
