@@ -42,13 +42,19 @@ function log {
 
 	$datetime="["+(Get-Date -Format "yyyy-MM-dd HH:mm:ss")+"] "
 	$action="[$action]".PadRight(7)
-	if ($action -eq "LIST") { $action="`n${action}"}
-	$status="[${status}]".PadRight(6)	
- 	if($script) { $script="[${script}] " }
-    if($message) { $message="$($message.Replace("`r`n", " / "))" }
-
-	$log_msg="${datetime}${action}${status}${script}${message}"
-	Add-Content -Force -Path $log_path -Value $log_msg
+	$status="[${status}]".PadRight(6)
+	if ($script) { $script = "[$script]" }
+	$log_msg="${datetime}${action}${status}${script}"
+	if ($action -like "*LIST*") { $log_msg="└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘`n`n┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐`n${log_msg}"}
+	if ($action -like "*EXEC*") {
+		$log_msg="${log_msg} -> '${Message}'"
+	}
+	else {
+		$Message = $Message -replace '(?m)^', '    '				# Add spaces at begining each line
+		$log_msg="${log_msg}`n${Message}"
+	}
+	if ($action -like "*LIST*" ) { $log_msg="${log_msg}`n" }
+	Add-Content -Force -LiteralPath $log_path -Value $log_msg
 }
 
 
@@ -117,7 +123,7 @@ Write-Error "Error getting pending scripts list`n"
 
 $script_list=$call_output_str
 if(!$script_list) {	Write-Output "0 pending scripts`n"; exit 0 }
-log -Action "LIST" -Status "OK" -Message "|$($script_list.Replace("`r`n", "|"))|"
+log -Action "LIST" -Status "OK" -Message $script_list
 $script_list -Replace '(?m)^(?=.)', '  - ' | ForEach-Object { Write-Output ($_ -replace '(/[^\r\n]*)', "$([char]27)[1m`$1$([char]27)[0m")) }
 
 
@@ -149,7 +155,12 @@ ForEach ($script in $($script_list -split "`r`n")) {
 	$script_path=$script_path.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'				# Remplace illegal path chars to _
   	$script_log="${scripts_path}\${script_path}.log"
     $script_path="${scripts_path}\${script_path}.ps1"
-	$script_code | Out-File -Force -LiteralPath $script_path
+	try { $script_code | Out-File -Force -LiteralPath $script_path } 
+	catch { 
+		Write-Output "ERROR SAVING SCRIPT: $script"
+		log -Action "SAVE" - Status "ERR" -Script $script
+		continue 
+	}
 	Write-Output "SCRIPT FILE: $script_path"
 	Write-Output "OUTPUT FILE: $script_Log"
 	
@@ -176,11 +187,11 @@ ForEach ($script in $($script_list -split "`r`n")) {
 
 	# SEND EXIT CODE TO SERVER AND LOG
     if($script_exitstatus) {
-        log -Action "EXEC" -Status "OK" -Script $script
+        log -Action "EXEC" -Status "OK" -Script $script -Message "$script_log"
 		call_script_server -Action "exec_ok" -Script $script -Message $exec_msg | Out-Null
 	} else {
 		Write-Output "ERROR EXECUTING SCRIPT: $script"
-		log -Action "EXEC" -Status "ERR" -Script $script
+		log -Action "EXEC" -Status "ERR" -Script $script -Message "$script_log"
 		call_script_server -Action "exec_error" -Script $script -Message $exec_msg | Out-Null
     }
 	Write-Output "EXIT CODE: $script_exitcode"
