@@ -125,7 +125,11 @@ Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
 ForEach ($script in $($script_list -split "`r`n")) {   
-	Write-Output "`n_______________________________________________________________________________________________________________"
+	Write-Output "`n┌──────────────────────────────────────────────────────────────────────────────┐"
+	# GET SCRIPT OPTIONS
+	$opt_nosavelog = $script -ilike '*/nosavelog*'								# Get NOSAVELOG option
+	$script = $script -replace '/.*$', ''										# Clean script name -> delete all after /
+	$script = $script.Trim()													# Script name trim spaces
 	Write-Output "SCRIPT: $script"
 
 	# GET SCRIPT CODE
@@ -170,7 +174,7 @@ ForEach ($script in $($script_list -split "`r`n")) {
 		log -Action "EXEC" -Status "ERR" -Script $script -Message (($script_output -split "\r?\n" | Select-Object -First 10) -join "/")
 		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
     }
-	Write-Output "_______________________________________________________________________________________________________________`n"
+	Write-Output "└──────────────────────────────────────────────────────────────────────────────┘`n"
 }
 
 Write-Output "`n"
