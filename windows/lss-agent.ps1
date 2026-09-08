@@ -23,7 +23,7 @@ $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server
 $agent_version=Get-Content -LiteralPath "${agent_path}\version"				# Agent version
 
 # LOAD CONFIG VARIABLES
-. ${agent_data}\config.ps1				
+. "${agent_data}\config.ps1"
 
 
 #=== FUNCTION ==================================================================
@@ -70,8 +70,8 @@ function wait_connection {
 		Write-Host "Waiting for server connection..."	
 	}
 	
-	Write-Host -e "\e[1m\e[31mTimeout waiting for connection\e[0m"
- 	log -Action -"TIME" -Status "ERR" -Message "Time out connecting to server"
+	Write-Error "Timeout waiting for connection`n"
+ 	log -Action "TIME" -Status "ERR" -Message "Time out connecting to server"
 	exit 1
 }
 
@@ -90,7 +90,6 @@ function call_script_server {
    )	
 	
 	$cmd="bash $sshcmd -v $agent_version -h $hostname -M $mac -r $repository -a $action"
-	if($action) { $cmd="$cmd -a `"$action`"" }
 	if($script) { $cmd="$cmd -s `"$script`"" }
 	if($message) { $cmd="$cmd -m `"$message`"" }
 
@@ -130,7 +129,7 @@ $script_list -Replace '(?m)^(?=.)', '  - ' | ForEach-Object { Write-Output ($_ -
 Write-Output "`n`nEXECUTING SCRIPTS..."
 
 #### GET AND EXEC SCRIPTS
-ForEach ($script in $($script_list -split "`r`n")) {   
+ForEach ($script in $($script_list -split "`r?`n")) {   
 	Write-Output "`n┌──────────────────────────────────────────────────────────────────────────────┐"
 	# GET SCRIPT OPTIONS
 	$opt_nosavelog = $script -ilike '*/nosavelog*'								# Get NOSAVELOG option
@@ -158,7 +157,7 @@ ForEach ($script in $($script_list -split "`r`n")) {
 	try { $script_code | Out-File -Force -LiteralPath $script_path } 
 	catch { 
 		Write-Output "ERROR SAVING SCRIPT: $script"
-		log -Action "SAVE" - Status "ERR" -Script $script
+		log -Action "SAVE" -Status "ERR" -Script $script
 		continue 
 	}
 	Write-Output "SCRIPT FILE: $script_path"
@@ -169,12 +168,12 @@ ForEach ($script in $($script_list -split "`r`n")) {
 	& $script_path 2>&1 | Tee-Object -LiteralPath $script_log				# Exec saved script and redirect log to script log file
     $script_exitstatus=$?; $script_exitcode=$LASTEXITCODE
 	$exec_msg = Get-Content -LiteralPath $script_log -Raw
-	Write-Output
+	Write-Output ""
 	
 	# RENAME SCRIPT FILE AND LOG ADDING [EXEC_CODE] TO FILENAME
 	if($opt_nosavelog) {													# Option NOSAVELOG -> remove script file and log
-		script_log="NOSAVELOG"
 		Remove-Item -Path $script_path, $script_log -ErrorAction SilentlyContinue
+		$script_log="NOSAVELOG"
 	} else {
 		$ec = if($script_exitstatus) { "EXEC_OK" } else { "EXEC_ER" }
 		$script_path_old = $script_path
@@ -197,4 +196,4 @@ ForEach ($script in $($script_list -split "`r`n")) {
 	Write-Output "EXIT CODE: $script_exitcode"
 	Write-Output "└──────────────────────────────────────────────────────────────────────────────┘`n"
 }
-Write-Output
+Write-Output ""
