@@ -146,7 +146,7 @@ ForEach ($script in $($script_list -split "`r`n")) {
     
 	# SAVE SCRIPT
   	if(!(Test-Path $scripts_path)) { New-Item -ItemType Directory -Force -Path $scripts_path }
- 	$script_path="["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"] "+${script}.split(" ",2)[1]
+ 	$script_path="["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"][EXEC_XX] "+${script}.split(" ",2)[1]
 	$script_path=$script_path.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'				# Remplace illegal path chars to _
   	$script_log="${scripts_path}\${script_path}.log"
     $script_path="${scripts_path}\${script_path}.ps1"
@@ -158,21 +158,34 @@ ForEach ($script in $($script_list -split "`r`n")) {
     Write-Output "`n+--- OUTPUT -----------------------------------------------------------------+"
 	& $script_path 2>&1 | Tee-Object -LiteralPath $script_log				# Exec saved script and redirect log to script log file
     $script_exitstatus=$?; $script_exitcode=$LASTEXITCODE
+	$exec_msg = Get-Content -LiteralPath $script_log -Raw
 	Write-Output "`n+----------------------------------------------------------------------------+"
 
+	# RENAME SCRIPT FILE AND LOG ADDING [EXEC_CODE] TO FILENAME
+	if($opt_nosavelog) {													# Option NOSAVELOG -> remove script file and log
+		script_log="NOSAVELOG"
+		Remove-Item -Path $script_path, $script_log -ErrorAction SilentlyContinue
+	} else {
+		$ec = if($script_exitstatus) { "EXEC_OK" } else { "EXEC_ER" }
+		$script_path_old = $script_path
+		$script_log_old  = $script_log
+		$script_path = $script_path.Replace('[EXEC_XX]', "[$ec]")
+		$script_log  = $script_log.Replace('[EXEC_XX]', "[$ec]")
+		Move-Item -LiteralPath $script_path_old -Destination $script_path -Force
+		Move-Item -LiteralPath $script_log_old  -Destination $script_log -Force
+	}
 
-	# SEND EXIT STATUS AND LOG
+	# SEND EXIT CODE TO SERVER AND LOG
     if($script_exitstatus) {
 		Write-Output "  * Execution termination: OK"
 		Write-Output "  * Saved output: $script_log"
         log -Action "EXEC" -Status "OK" -Script $script
-		call_script_server -Action "exec_ok" -Script $script | Out-Null
+		call_script_server -Action "exec_ok" -Script $script -Message $exec_msg | Out-Null
 	} else {
 		Write-Output "  * Execution termination: ERROR (${script_exitcode})"
 		Write-Output "  * Saved output: $script_log"
-		$script_output=Get-Content -LiteralPath $script_log | Out-String
-		log -Action "EXEC" -Status "ERR" -Script $script -Message (($script_output -split "\r?\n" | Select-Object -First 10) -join "/")
-		call_script_server -Action "exec_error" -Script $script -Message $script_output | Out-Null
+		log -Action "EXEC" -Status "ERR" -Script $script
+		call_script_server -Action "exec_error" -Script $script -Message $exec_msg | Out-Null
     }
 	Write-Output "└──────────────────────────────────────────────────────────────────────────────┘`n"
 }
