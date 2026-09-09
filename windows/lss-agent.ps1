@@ -154,6 +154,7 @@ ForEach ($script in $($script_list -split "`r?`n")) {
  	$script_path="["+(Get-Date -Format "yyy-MM-dd HH.mm.ss")+"][EXEC_XX] "+${script}.split(" ",2)[1]
 	$script_path=$script_path.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'				# Remplace illegal path chars to _
   	$script_log="${scripts_path}\${script_path}.log"
+	Set-Content -LiteralPath $script_log -Value $null						# Create empty log file
     $script_path="${scripts_path}\${script_path}.ps1"
 	try { $script_code | Out-File -Force -LiteralPath $script_path } 
 	catch { 
@@ -168,7 +169,7 @@ ForEach ($script in $($script_list -split "`r?`n")) {
     Write-Output "EXECUTION SCRIPT"
 	& $script_path 2>&1 | Tee-Object -LiteralPath $script_log				# Exec saved script and redirect log to script log file
     $script_exitstatus=$?; $script_exitcode=$LASTEXITCODE
-	$exec_msg = Get-Content -LiteralPath $script_log -Raw -ErrorAction SilentlyContinue
+	$exec_msg = Get-Content -LiteralPath $script_log -Raw
 	Write-Output ""
 	
 	# RENAME SCRIPT FILE AND LOG ADDING [EXEC_CODE] TO FILENAME
