@@ -174,7 +174,7 @@ ForEach ($script in $($script_list -split "`r?`n")) {
 	
 	# RENAME SCRIPT FILE AND LOG ADDING [EXEC_CODE] TO FILENAME
 	if($opt_nosavelog) {													# Option NOSAVELOG -> remove script file and log
-		Remove-Item -Path $script_path, $script_log -ErrorAction SilentlyContinue
+		Remove-Item -LiteralPath $script_path, $script_log -ErrorAction SilentlyContinue
 		$script_log="NOSAVELOG"
 	} else {
 		$ec = if($script_exitstatus) { "EXEC_OK" } else { "EXEC_ER" }
