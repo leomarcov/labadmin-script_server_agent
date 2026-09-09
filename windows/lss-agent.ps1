@@ -168,7 +168,7 @@ ForEach ($script in $($script_list -split "`r?`n")) {
     Write-Output "EXECUTION SCRIPT"
 	& $script_path 2>&1 | Tee-Object -LiteralPath $script_log				# Exec saved script and redirect log to script log file
     $script_exitstatus=$?; $script_exitcode=$LASTEXITCODE
-	$exec_msg = Get-Content -LiteralPath $script_log -Raw
+	$exec_msg = Get-Content -LiteralPath $script_log -Raw -ErrorAction SilentlyContinue
 	Write-Output ""
 	
 	# RENAME SCRIPT FILE AND LOG ADDING [EXEC_CODE] TO FILENAME
