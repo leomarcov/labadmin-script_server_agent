@@ -44,8 +44,9 @@ function log {
 	$action="[$action]".PadRight(7)
 	$status="[${status}]".PadRight(6)
 	if ($script) { $script = "[$script]" }
-	$log_msg="${datetime}${action}${status}${script}"
-	if ($action -like "*LIST*") { $log_msg="└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘`n`n┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐`n${log_msg}"}
+	$log_msg="${datetime}${action}${status}${script}" 
+	if ($action -like "*LIST*") { $log_msg="└────────────────────────────────────────────────────────────────────────────────────────────────────────────┘`n`n┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐`n${log_msg}"; }
+	
 	if ($action -like "*EXEC*") {
 		$log_msg="${log_msg} -> '${Message}'"
 	}
@@ -123,7 +124,7 @@ Write-Error "Error getting pending scripts list`n"
 $script_list=$call_output_str
 if(!$script_list) {	Write-Output "0 pending scripts`n"; exit 0 }
 log -Action "LIST" -Status "OK" -Message $script_list
-$script_list -Replace '(?m)^(?=.)', '  - ' | ForEach-Object { Write-Output ($_ -replace '(/[^\r\n]*)', "$([char]27)[1m`$1$([char]27)[0m")) }
+$script_list -Replace '(?m)^(?=.)', '  - ' 
 
 
 Write-Output "`n`nEXECUTING SCRIPTS..."
