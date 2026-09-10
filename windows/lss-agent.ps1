@@ -18,8 +18,6 @@
 $agent_path="${ENV:ProgramFiles}\labadmin\lss-agent"						# Agent program install path
 $agent_data="${ENV:ALLUSERSPROFILE}\labadmin\lss-agent"						# Agent program data path
 $scripts_path="${agent_data}\scripts"										# Downloaded scripts path stored
-#$hostname=[Environment]::MachineName									    # Hostname 
-$hostname=(Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName').ComputerName	# Current hostname or next hostname
 $sshcmd="/opt/labadmin-script_server/lss-srv"							    # Labadmin script server command path in remote server
 $agent_version=Get-Content -LiteralPath "${agent_path}\version"				# Agent version
 
@@ -90,7 +88,8 @@ function call_script_server {
 	  [String]$script,
 	  [String]$message
    )	
-	
+
+	$hostname=(Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName').ComputerName		# Current hostname or next hostname
 	$cmd="bash $sshcmd -v $agent_version -h $hostname -M $mac -r $repository -a $action"
 	if($script) { $cmd="$cmd -s `"$script`"" }
 	if($message) { $cmd="$cmd -m `"$message`"" }
