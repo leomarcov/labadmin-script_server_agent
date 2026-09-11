@@ -14,7 +14,7 @@
 #===============================================================================
 $repository="windows"                                               # Server repository name to query scripts
 $log_path="${agent_data}\log.txt"                                   # File path where save logs
-$sshaddress="10.119.171.216"                                        # SSH IP address
+$sshaddress="10.50.1.200"                                           # SSH IP address
 $sshport="58889"                                                    # SSH port
 $sshuser="lss-agent"                                                # SSH username
 
