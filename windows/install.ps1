@@ -33,20 +33,19 @@ if(!((New-Object Security.Principal.WindowsPrincipal([Security.Principal.Windows
 #  CREATE LOCAL USER FOR SCRIPT EXECUTION
 #===============================================================================
 # Get agent_user credentials
-Write-Host "`nInsert $agent_user user credentials..." -ForegroundColor Green
-while(!$agent_user_cred -OR $agent_user_cred.Username -ne $agent_user) { $agent_user_cred = Get-Credential -Credential $agent_user }
-
 if (-not (Get-LocalUser -Name $agent_user -ErrorAction SilentlyContinue)) {
 	Write-Host "`nCreating local user $agent_user" -ForegroundColor Green
+	Write-Host "`nInsert $agent_user user credentials..." -ForegroundColor Green
+	while(!$agent_user_cred -OR $agent_user_cred.Username -ne $agent_user) { $agent_user_cred = Get-Credential -Credential $agent_user }
 	New-LocalUser -Name $agent_user -FullName "Labadmin Script Server Agent" -Password $agent_user_cred.Password
     Set-LocalUser -Name $agent_user -PasswordNeverExpires:$true
 	Add-LocalGroupMember -Member $agent_user -SID "S-1-5-32-544"			# Add user to local Administrators group
 	# Hide user from login screen:
 	New-Item 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList' -Force | New-ItemProperty -Name $agent_user -Value 0 -PropertyType DWord -Force
-} else {
-	Set-LocalUser -Name $agent_user -Password $agent_user_cred.Password -PasswordNeverExpires:$true
-}
+} 
 
+
+exit
 #===============================================================================
 #  INSTALL FILES
 
@@ -93,8 +92,3 @@ if(!(Get-Module Posh-SSH)) {
 #===============================================================================
 Write-Host "`nRegistering scheduled job..." -ForegroundColor Green
 Start-Process powershell -Wait -Credential $agent_user_cred -ArgumentList "-File `"${agent_path}\lss-config-schedule.ps1`" -register"
-
-
-
-
-
